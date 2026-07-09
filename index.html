@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SISTEMA JUDICIÁRIO RP</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #0f141c;
+            --container-bg: #161f2b;
+            --input-bg: #0b1016;
+            --text-color: #e2e8f0;
+            --text-muted: #94a3b8;
+            --accent-color: #c5a880;
+            --accent-hover: #b3946b;
+            --success-color: #1b4d3e;
+            --success-hover: #133a2f;
+            --danger-color: #611f1f;
+            --danger-hover: #4a1717;
+            --border-color: #2a3649;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Times New Roman', Times, serif, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 25px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: var(--container-bg);
+            width: 100%;
+            max-width: 850px;
+            padding: 40px;
+            border-radius: 4px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border-top: 4px solid var(--accent-color);
+            position: relative;
+        }
+
+        /* Sistema de Abas */
+        .nav-tabs {
+            position: absolute;
+            top: 15px;
+            right: 25px;
+            display: flex;
+            gap: 5px;
+        }
+
+        .tab-btn {
+            background-color: var(--input-bg);
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+            padding: 6px 12px;
+            font-size: 11px;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-family: 'Segoe UI', sans-serif;
+            letter-spacing: 1px;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            background-color: var(--accent-color);
+            color: #0f141c;
+            border-color: var(--accent-color);
+        }
+
+        .header-system {
+            text-align: center;
+            margin-bottom: 30px;
+            margin-top: 15px;
+        }
+
+        .header-system i {
+            font-size: 48px;
+            color: var(--accent-color);
+            margin-bottom: 15px;
+        }
+
+        h1 {
+            font-size: 26px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            color: #fff;
+            text-transform: uppercase;
+        }
+
+        .subtitle {
+            font-size: 13px;
+            color: var(--accent-color);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-top: 5px;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .inline-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+            align-items: flex-end;
+        }
+
+        .inline-field {
+            flex: 1;
+            min-width: 130px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .inline-field label {
+            margin-bottom: 0;
+            white-space: nowrap;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        select, input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 10px 12px;
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 3px;
+            color: var(--text-color);
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        select:focus, input[type="text"]:focus, input[type="number"]:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 5px rgba(197, 168, 128, 0.2);
+        }
+
+        .module-section {
+            display: none;
+        }
+
+        .module-section.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in-out forwards;
+        }
+
+        .conditional-field {
+            display: none;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Estilos da Prisão Dinâmica */
+        .prisaon-row {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            background: rgba(11, 16, 22, 0.4);
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-add-prisao {
+            background-color: var(--accent-color);
+            color: #0f141c;
+            padding: 8px 14px;
+            font-size: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            width: auto;
+            margin-bottom: 15px;
+        }
+
+        .btn-add-prisao:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .btn-excluir {
+            background-color: var(--accent-color);
+            color: #0f141c;
+            padding: 10px 15px;
+            font-size: 12px;
+            width: auto;
+            flex: none;
+        }
+
+        .btn-excluir:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .live-counter {
+            font-size: 18px;
+            font-weight: bold;
+            color: #fff;
+            margin: 20px 0;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .live-counter span {
+            color: var(--accent-color);
+        }
+
+        .btn-container {
+            margin-top: 30px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            flex: 1;
+            min-width: 140px;
+            padding: 14px;
+            font-size: 14px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .btn-generate {
+            background-color: var(--accent-color);
+            color: #0f141c;
+        }
+
+        .btn-generate:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .btn-copy {
+            background-color: var(--success-color);
+            color: white;
+            border: 1px solid #236954;
+        }
+
+        .btn-copy:hover {
+            background-color: var(--success-hover);
+        }
+
+        .btn-clear {
+            background-color: var(--danger-color);
+            color: white;
+            border: 1px solid #7d2626;
+        }
+
+        .btn-clear:hover {
+            background-color: var(--danger-hover);
+        }
+
+        .output-container {
+            margin-top: 30px;
+            display: none;
+        }
+
+        .output-box-wrapper {
+            margin-bottom: 20px;
+        }
+
+        .output-box-title {
+            font-size: 12px;
+            color: var(--accent-color);
+            font-weight: bold;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        textarea {
+            width: 100%;
+            height: 220px;
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 3px;
+            color: #c5a880;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 18px;
+            font-size: 14px;
+            resize: vertical;
+            line-height: 1.5;
+        }
+
+        .mini-copy-btn {
+            background-color: var(--success-color);
+            color: white;
+            padding: 6px 12px;
+            font-size: 11px;
+            margin-top: 5px;
+            width: auto;
+            display: inline-block;
+        }
+
+        .mini-copy-btn:hover {
+            background-color: var(--success-hover);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #1b4d3e;
+            border: 1px solid var(--accent-color);
+            color: white;
+            padding: 14px 28px;
+            border-radius: 3px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            font-weight: bold;
+            font-size: 14px;
+            display: none;
+            z-index: 1000;
+            font-family: 'Segoe UI', sans-serif;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Abas Seletoras de Módulo -->
+        <div class="nav-tabs">
+            <button class="tab-btn active" onclick="switchModule('despachos', this)">Despachos</button>
+            <button class="tab-btn" onclick="switchModule('taxas', this)">Calculadora de Taxa</button>
+        </div>
+
+        <div class="header-system">
+            <i class="fa-solid fa-scale-balanced" id="mainIcon"></i>
+            <h1 id="mainTitle">Sistema Judiciário RP</h1>
+            <div class="subtitle" id="mainSubtitle">Módulo de Despachos e Portes</div>
+        </div>
+
+        <!-- ================= MÓDULO 1: DESPACHOS ================= -->
+        <div id="moduleDespachos" class="module-section active">
+            <div class="form-group">
+                <label for="statusSelect">SELECIONE O STATUS DO PROCESSO</label>
+                <select id="statusSelect" onchange="toggleFields()">
+                    <option value="1">🧠 STATUS: AGUARDANDO LAUDO PSICOLÓGICO</option>
+                    <option value="2">🎯 STATUS: AGUARDANDO TESTE DE TIROS</option>
+                    <option value="3">📄 STATUS: AGUARDANDO EMISSÃO E ENTREGA DO PORTE DE ARMA</option>
+                    <option value="4">✅ STATUS: PORTE EMITIDO (SENTENÇA FINAL)</option>
+                </select>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 25px 0;">
+
+            <div class="form-group">
+                <label for="nomeAutor">NOME DO AUTOR / CLIENTE</label>
+                <input type="text" id="nomeAutor" placeholder="Ex: João Silva">
+            </div>
+
+            <div class="form-group" id="fieldPassaporte">
+                <label for="passaporteAutor">PASSAPORTE / ID RP DO AUTOR</label>
+                <input type="text" id="passaporteAutor" placeholder="Ex: 137081">
+            </div>
+
+            <div class="form-group">
+                <label for="nomeAdvogado">NOME DO ADVOGADO</label>
+                <input type="text" id="nomeAdvogado" placeholder="Ex: Dr. Carlos Souza">
+            </div>
+
+            <div class="form-group">
+                <label for="idJuiz">ID DO DISCORD - JUIZ</label>
+                <input type="text" id="idJuiz" placeholder="Ex: 780835619727212575">
+            </div>
+
+            <div class="form-group">
+                <label for="idAdvogado">ID DO DISCORD - ADVOGADO</label>
+                <input type="text" id="idAdvogado" placeholder="Ex: 1257709624694411355">
+            </div>
+
+            <div class="form-group">
+                <label for="idAutor">ID DO DISCORD - AUTOR / CLIENTE</label>
+                <input type="text" id="idAutor" placeholder="Ex: 538874591083364383">
+            </div>
+
+            <div class="form-group conditional-field" id="fieldPsicologoNome">
+                <label for="nomePsicologo">NOME DO PSICÓLOGO</label>
+                <input type="text" id="nomePsicologo" placeholder="Ex: Dra. Ana Paula">
+            </div>
+
+            <div class="form-group conditional-field" id="fieldPsicologoId">
+                <label for="idPsicologo">ID DO DISCORD - PSICÓLOGO RESPONSÁVEL</label>
+                <input type="text" id="idPsicologo" placeholder="ID Discord">
+            </div>
+
+            <div class="form-group conditional-field" id="fieldTirosId">
+                <label for="idTiros">ID DO DISCORD - RESPONSÁVEL PELO TESTE DE TIROS</label>
+                <input type="text" id="idTiros" placeholder="ID Discord">
+            </div>
+
+            <div class="form-group conditional-field" id="fieldArmamento">
+                <label for="txtArmamento">ARMAMENTO AUTORIZADO</label>
+                <input type="text" id="txtArmamento" value="PX4 com 80 munições">
+            </div>
+        </div>
+
+        <!-- ================= MÓDULO 2: CALCULADORA DE REABILITAÇÃO ================= -->
+        <div id="moduleTaxas" class="module-section">
+            <div id="prisaoContainer">
+                <div class="prisaon-row">
+                    <div class="inline-field">
+                        <label>Horas</label>
+                        <input type="number" class="input-horas" value="0" min="0" oninput="liveCalculateReab()">
+                    </div>
+                    <div class="inline-field">
+                        <label>Minutos</label>
+                        <input type="number" class="input-minutos" value="0" min="0" oninput="liveCalculateReab()">
+                    </div>
+                    <button class="btn-excluir" onclick="removePrisaoRow(this)">Excluir</button>
+                </div>
+            </div>
+
+            <button class="btn-add-prisao" onclick="addPrisaoRow()">+ Adicionar Prisão</button>
+
+            <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 25px 0;">
+
+            <div class="inline-group">
+                <div style="flex: 1; min-width: 200px;">
+                    <label>Juiz - ID Discord</label>
+                    <input type="text" id="reabJuizId" placeholder="ID Discord">
+                </div>
+                <div style="flex: 1; min-width: 200px;">
+                    <label>Advogado - ID Discord</label>
+                    <input type="text" id="reabAdvId" placeholder="ID Discord">
+                </div>
+            </div>
+
+            <div class="inline-group">
+                <div style="flex: 2; min-width: 200px;">
+                    <label>Nome Cliente</label>
+                    <input type="text" id="reabClienteNome" placeholder="Ex: Henrique Jose">
+                </div>
+                <div style="flex: 1.5; min-width: 180px;">
+                    <label>Cliente - ID Discord</label>
+                    <input type="text" id="reabClienteId" placeholder="ID Discord">
+                </div>
+                <div style="flex: 1; min-width: 120px;">
+                    <label>Cliente - ID RP</label>
+                    <input type="text" id="reabClienteRP" placeholder="Ex: 1982">
+                </div>
+            </div>
+
+            <div class="live-counter">
+                Meses: <span id="lblMeses">0</span> | Taxa: <span id="lblTaxa">R$ 0,00</span>
+            </div>
+        </div>
+
+        <!-- Painel de Botões Geral -->
+        <div class="btn-container">
+            <button class="btn-generate" onclick="executeModuleAction()">Gerar Decisão</button>
+            <button class="btn-clear" onclick="clearAll()">Limpar Tudo</button>
+        </div>
+
+        <!-- Output Final Dinâmico -->
+        <div class="output-container" id="outputContainer">
+            <!-- Bloco do Texto Principal -->
+            <div class="output-box-wrapper" id="wrapperTexto1">
+                <div class="output-box-title" id="titleTexto1">Texto Judicial / Decisão:</div>
+                <textarea id="outputText" readonly></textarea>
+                <button class="mini-copy-btn" onclick="copySpecificText('outputText')">Copiar Texto Acima</button>
+            </div>
+
+            <!-- Bloco do Texto Secundário (Aparece apenas se for Porte Emitido) -->
+            <div class="output-box-wrapper" id="wrapperTexto2" style="display: none;">
+                <div class="output-box-title">Texto 2 - Registro de Sistema / Logs:</div>
+                <textarea id="outputText2" readonly style="height: 160px;"></textarea>
+                <button class="mini-copy-btn" onclick="copySpecificText('outputText2')">Copiar Registro de Log</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"><i class="fa-solid fa-check" style="color: #c5a880; margin-right: 8px;"></i> Conteúdo copiado!</div>
+
+    <script>
+        let currentModule = 'despachos';
+
+        function formatMention(id) {
+            if (!id || id.trim() === "") return "(Não informado)";
+            let cleanId = id.trim();
+            if (cleanId.startsWith("<@") && cleanId.endsWith(">")) return cleanId;
+            return `<@${cleanId}>`;
+        }
+
+        function switchModule(moduleName, element) {
+            currentModule = moduleName;
+            document.querySelectorAll('.nav-tabs .tab-btn').forEach(btn => btn.classList.remove('active'));
+            element.classList.add('active');
+            document.querySelectorAll('.module-section').forEach(sec => sec.classList.remove('active'));
+            
+            const title = document.getElementById('mainTitle');
+            const subtitle = document.getElementById('mainSubtitle');
+            const icon = document.getElementById('mainIcon');
+
+            if (moduleName === 'despachos') {
+                document.getElementById('moduleDespachos').classList.add('active');
+                title.innerText = "Sistema Judiciário RP";
+                subtitle.innerText = "Módulo de Despachos e Portes";
+                icon.className = "fa-solid fa-scale-balanced";
+            } else {
+                document.getElementById('moduleTaxas').classList.add('active');
+                title.innerText = "Calculadora de Taxa de Reabilitação";
+                subtitle.innerText = "Cálculo de Penas e Taxas de Limpeza";
+                icon.className = "fa-solid fa-calculator";
+                liveCalculateReab();
+            }
+            
+            document.getElementById("outputContainer").style.display = "none";
+        }
+
+        function toggleFields() {
+            const status = document.getElementById("statusSelect").value;
+            document.getElementById("fieldPsicologoNome").style.display = (status === "2" || status === "3") ? "block" : "none";
+            document.getElementById("fieldPsicologoId").style.display = (status === "2" || status === "3") ? "block" : "none";
+            document.getElementById("fieldTirosId").style.display = (status === "3") ? "block" : "none";
+            document.getElementById("fieldArmamento").style.display = (status === "4") ? "block" : "none";
+        }
+
+        function addPrisaoRow() {
+            const container = document.getElementById("prisaoContainer");
+            const newRow = document.createElement("div");
+            newRow.className = "prisaon-row";
+            newRow.innerHTML = `
+                <div class="inline-field">
+                    <label>Horas</label>
+                    <input type="number" class="input-horas" value="0" min="0" oninput="liveCalculateReab()">
+                </div>
+                <div class="inline-field">
+                    <label>Minutos</label>
+                    <input type="number" class="input-minutos" value="0" min="0" oninput="liveCalculateReab()">
+                </div>
+                <button class="btn-excluir" onclick="removePrisaoRow(this)">Excluir</button>
+            `;
+            container.appendChild(newRow);
+            liveCalculateReab();
+        }
+
+        function removePrisaoRow(button) {
+            button.parentElement.remove();
+            liveCalculateReab();
+        }
+
+        function liveCalculateReab() {
+            let totalMinutos = 0;
+            document.querySelectorAll(".prisaon-row").forEach(row => {
+                const horas = parseInt(row.querySelector(".input-horas").value) || 0;
+                const minutos = parseInt(row.querySelector(".input-minutos").value) || 0;
+                totalMinutos += (horas * 60) + minutos;
+            });
+            const meses = totalMinutos;
+            const taxaTotal = meses * 28000;
+            document.getElementById("lblMeses").innerText = meses;
+            document.getElementById("lblTaxa").innerText = "R$ " + taxaTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            return { meses, taxaTotal };
+        }
+
+        function executeModuleAction() {
+            if (currentModule === 'despachos') {
+                generateDespacho();
+            } else {
+                generateReabDecision();
+            }
+        }
+
+        function generateDespacho() {
+            const status = document.getElementById("statusSelect").value;
+            const nomeAutor = document.getElementById("nomeAutor").value || "**NOME DO AUTOR**";
+            const passaporte = document.getElementById("passaporteAutor").value || "000000";
+            const nomeAdvogado = document.getElementById("nomeAdvogado").value || "**ADVOGADO**";
+            const nomePsicologo = document.getElementById("nomePsicologo").value || "**NOME DO PSICÓLOGO**";
+            const armamento = document.getElementById("txtArmamento").value || "PX4 com 80 munições";
+
+            const idJuiz = formatMention(document.getElementById("idJuiz").value);
+            const idAdvogado = formatMention(document.getElementById("idAdvogado").value);
+            const idAutor = formatMention(document.getElementById("idAutor").value);
+            const idPsicologo = formatMention(document.getElementById("idPsicologo").value);
+            const idTiros = formatMention(document.getElementById("idTiros").value);
+
+            let finalText = "";
+            document.getElementById("wrapperTexto2").style.display = "none";
+            document.getElementById("titleTexto1").innerText = "Texto Judicial / Decisão:";
+
+            if (status === "1") {
+                finalText = `**DESPACHO - ANÁLISE PRELIMINAR**\n\nVistos, etc.\n\nTrata-se de pedido de Emissão de Porte de Arma solicitado por **${nomeAutor}**, representado por **${nomeAdvogado}**\n\nVerifico que o requerente atende aos requisitos preliminares para prosseguimento do feito.\n\nPortanto, **DECIDO: DEFIRO** o prosseguimento do pedido e determino o encaminhamento para Avaliação Psicológica.\n\n🧠 **STATUS: AGUARDANDO LAUDO PSICOLÓGICO**\n\n---\n\nJuiz: ${idJuiz}\nAdvogado: ${idAdvogado}\nAutor: ${idAutor}\n\nNada mais.`;
+            } else if (status === "2") {
+                finalText = `**DESPACHO - ANÁLISE DE LAUDO**\n\nVistos, etc.\n\nTrata-se de pedido de Emissão de Porte de Arma solicitado por **${nomeAutor}** -\n\nConsta nos autos laudo psicológico favorável, emitido por **${nomePsicologo}**, considerando o requerente **APTO** para prosseguimento do processo.\n\nDiante do exposto, determino o encaminhamento para realização do Teste Prático de Manuseio e Disparo de Arma de Fogo.\n\n🎯 **STATUS: AGUARDANDO TESTE DE TIROS**\n\n---\n\nJuiz: ${idJuiz}\nAdvogado: ${idAdvogado}\nAutor: ${idAutor}\n\nPsicólogo Responsável: ${idPsicologo}\n\nNada mais.`;
+            } else if (status === "3") {
+                finalText = `**DESPACHO - ANÁLISE FINAL**\n\nVistos, etc.\n\nTrata-se de pedido de Emissão de Porte de Arma solicitado por **${nomeAutor}** -\n\nVerifico que o requerente foi considerado **APTO** na Avaliação Psicológica e **APROVADO** no Teste Prático de Manuseio e Disparo de Arma de Fogo, cumprindo integralmente todas as exigências previstas.\n\nDiante da inexistência de pendências, determino a emissão e posterior entrega do Porte de Arma ao requerente.\n\n📄 **STATUS: AGUARDANDO EMISSÃO E ENTREGA DO PORTE DE ARMA**\n\n---\n\nJuiz: ${idJuiz}\nAdvogado: ${idAdvogado}\nAutor: ${idAutor}\n\nPsicólogo Responsável: ${idPsicologo}\nResponsável pelo Teste de Tiros: ${idTiros}\n\nNada mais.`;
+            } else if (status === "4") {
+                // Sentença Final do Porte Emitido
+                finalText = `**⚖️ SENTENÇA FINAL - DEFERIMENTO**\n\n` +
+                            `**Vistos, etc.** Constato cumpridos os requisitos e **HOMOLOGO** a emissão de porte de arma.\n\n` +
+                            `**DETERMINAÇÕES FINAIS:**\n` +
+                            `1. **DETERMINO** a autorização do porte de arma do solicitante.\n` +
+                            `2. Convoco o solicitante para a emissão do porte na cidade.\n\n` +
+                            `Dou o processo por **CONCLUÍDO**. Arquive-se. ✅\n\n` +
+                            `**STATUS: PORTE EMITIDO**\n\n` +
+                            `---\n` +
+                            `**Juiz:** ${idJuiz} | **Advogado:** ${idAdvogado} | **Cliente:** ${idAutor} (${idAutor}) - ID: ${passaporte}`;
+
+                // Segunda Informação (Log / Registro)
+                const hoje = new Date();
+                const dataFormatada = hoje.toLocaleDateString('pt-BR');
+                
+                let textLog = `NOME: ${nomeAutor} - ${idAutor}\n` +
+                             `PASSAPORTE: ${passaporte}\n` +
+                             `ARMAMENTO: ${armamento}\n` +
+                             `AUTORIZADO POR : ${idJuiz}\n` +
+                             `FINALIZADO: ${dataFormatada}\n\n` +
+                             `VALIDO EM TODO TERRITÓRIO NACIONAL\n` +
+                             `OBS: A autorização perderá eficácia caso detido/embriagado/drogado.`;
+
+                document.getElementById("outputText2").value = textLog;
+                document.getElementById("wrapperTexto2").style.display = "block";
+                document.getElementById("titleTexto1").innerText = "Texto 1 - Sentença Final:";
+            }
+
+            document.getElementById("outputText").value = finalText;
+            document.getElementById("outputContainer").style.display = "block";
+        }
+
+        function generateReabDecision() {
+            const dataData = liveCalculateReab();
+            const juizM = formatMention(document.getElementById("reabJuizId").value);
+            const advM = formatMention(document.getElementById("reabAdvId").value);
+            const clienteM = formatMention(document.getElementById("reabClienteId").value);
+            const clienteNome = document.getElementById("reabClienteNome").value || "Nome do Cliente";
+            const clienteRP = document.getElementById("reabClienteRP").value || "0000";
+
+            const valorFormatado = "R$ " + dataData.taxaTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            document.getElementById("wrapperTexto2").style.display = "none";
+            document.getElementById("titleTexto1").innerText = "Texto Judicial / Decisão:";
+
+            let output = `**⚖️ DECISÃO INTERLOCUTÓRIA - CÁLCULO DE TAXA**\n\n` +
+                         `Constato a Aptidão do requerente no Laudo anexado.\n\n` +
+                         `Meses Válidos para Limpeza: ${dataData.meses}\n\n` +
+                         `**VALOR TOTAL: ${valorFormatado}**\n\n` +
+                         `DETERMINO prazo de 3 dias para o pagamento ser efetivado ao **JUIZ** ${juizM}.\n\n` +
+                         `---\n\n` +
+                         `**Juiz:** ${juizM} | **Advogado:** ${advM} | **Cliente:** ${clienteNome} (${clienteM}) - ID: ${clienteRP}`;
+
+            document.getElementById("outputText").value = output;
+            document.getElementById("outputContainer").style.display = "block";
+        }
+
+        function copySpecificText(elementId) {
+            const textarea = document.getElementById(elementId);
+            if (!textarea.value) return;
+            textarea.select();
+            textarea.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(textarea.value);
+
+            const toast = document.getElementById("toast");
+            toast.style.display = "block";
+            setTimeout(() => { toast.style.display = "none"; }, 3000);
+        }
+
+        function clearAll() {
+            document.getElementById("nomeAutor").value = "";
+            document.getElementById("passaporteAutor").value = "";
+            document.getElementById("nomeAdvogado").value = "";
+            document.getElementById("idJuiz").value = "";
+            document.getElementById("idAdvogado").value = "";
+            document.getElementById("idAutor").value = "";
+            document.getElementById("nomePsicologo").value = "";
+            document.getElementById("idPsicologo").value = "";
+            document.getElementById("idTiros").value = "";
+            document.getElementById("txtArmamento").value = "PX4 com 80 munições";
+            
+            document.getElementById("reabJuizId").value = "";
+            document.getElementById("reabAdvId").value = "";
+            document.getElementById("reabClienteNome").value = "";
+            document.getElementById("reabClienteId").value = "";
+            document.getElementById("reabClienteRP").value = "";
+
+            document.getElementById("prisaoContainer").innerHTML = `
+                <div class="prisaon-row">
+                    <div class="inline-field">
+                        <label>Horas</label>
+                        <input type="number" class="input-horas" value="0" min="0" oninput="liveCalculateReab()">
+                    </div>
+                    <div class="inline-field">
+                        <label>Minutos</label>
+                        <input type="number" class="input-minutos" value="0" min="0" oninput="liveCalculateReab()">
+                    </div>
+                    <button class="btn-excluir" onclick="removePrisaoRow(this)">Excluir</button>
+                </div>
+            `;
+
+            liveCalculateReab();
+            document.getElementById("outputContainer").style.display = "none";
+        }
+
+        toggleFields();
+    </script>
+</body>
+</html>
