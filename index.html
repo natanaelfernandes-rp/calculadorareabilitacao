@@ -49,7 +49,6 @@
             position: relative;
         }
 
-        /* Sistema de Abas */
         .nav-tabs {
             position: absolute;
             top: 15px;
@@ -126,11 +125,6 @@
             gap: 10px;
         }
 
-        .inline-field label {
-            margin-bottom: 0;
-            white-space: nowrap;
-        }
-
         label {
             display: block;
             margin-bottom: 8px;
@@ -159,6 +153,19 @@
             box-shadow: 0 0 5px rgba(197, 168, 128, 0.2);
         }
 
+        .select-cadastrado {
+            border-left: 3px solid var(--accent-color);
+            margin-bottom: 8px;
+        }
+
+        .manual-input-box {
+            background: rgba(11, 16, 22, 0.3);
+            padding: 12px;
+            border-radius: 3px;
+            border: 1px dashed var(--border-color);
+            margin-top: 5px;
+        }
+
         .module-section {
             display: none;
         }
@@ -177,7 +184,67 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Estilos da Prisão Dinâmica */
+        .card-cadastro {
+            background: rgba(11, 16, 22, 0.5);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            border-radius: 4px;
+            margin-bottom: 25px;
+        }
+
+        .lista-cadastrados {
+            max-height: 350px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            background: var(--input-bg);
+            padding: 15px;
+            border-radius: 3px;
+        }
+
+        .categoria-titulo {
+            font-size: 11px;
+            color: var(--accent-color);
+            font-weight: bold;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-family: 'Segoe UI', sans-serif;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 4px;
+            margin-top: 15px;
+            margin-bottom: 8px;
+        }
+        .categoria-titulo:first-child {
+            margin-top: 0;
+        }
+
+        .item-membro {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 10px;
+            border-bottom: 1px solid rgba(42, 54, 73, 0.2);
+            font-size: 13px;
+        }
+
+        .item-membro:last-child {
+            border-bottom: none;
+        }
+
+        .btn-mini-excluir {
+            background: none;
+            border: none;
+            color: #ef4444;
+            cursor: pointer;
+            font-size: 12px;
+            padding: 2px 5px;
+            min-width: auto;
+            flex: none;
+        }
+
+        .btn-mini-excluir:hover {
+            color: #f87171;
+        }
+
         .prisaon-row {
             display: flex;
             gap: 15px;
@@ -189,7 +256,7 @@
             border: 1px solid var(--border-color);
         }
 
-        .btn-add-prisao {
+        .btn-add-prisao, .btn-add-membro {
             background-color: var(--accent-color);
             color: #0f141c;
             padding: 8px 14px;
@@ -201,10 +268,6 @@
             margin-bottom: 15px;
         }
 
-        .btn-add-prisao:hover {
-            background-color: var(--accent-hover);
-        }
-
         .btn-excluir {
             background-color: var(--accent-color);
             color: #0f141c;
@@ -212,10 +275,6 @@
             font-size: 12px;
             width: auto;
             flex: none;
-        }
-
-        .btn-excluir:hover {
-            background-color: var(--accent-hover);
         }
 
         .live-counter {
@@ -257,19 +316,7 @@
             color: #0f141c;
         }
 
-        .btn-generate:hover {
-            background-color: var(--accent-hover);
-        }
-
-        .btn-copy {
-            background-color: var(--success-color);
-            color: white;
-            border: 1px solid #236954;
-        }
-
-        .btn-copy:hover {
-            background-color: var(--success-hover);
-        }
+        .btn-generate:hover { background-color: var(--accent-hover); }
 
         .btn-clear {
             background-color: var(--danger-color);
@@ -277,18 +324,14 @@
             border: 1px solid #7d2626;
         }
 
-        .btn-clear:hover {
-            background-color: var(--danger-hover);
-        }
+        .btn-clear:hover { background-color: var(--danger-hover); }
 
         .output-container {
             margin-top: 30px;
             display: none;
         }
 
-        .output-box-wrapper {
-            margin-bottom: 20px;
-        }
+        .output-box-wrapper { margin-bottom: 20px; }
 
         .output-box-title {
             font-size: 12px;
@@ -323,9 +366,7 @@
             display: inline-block;
         }
 
-        .mini-copy-btn:hover {
-            background-color: var(--success-hover);
-        }
+        .mini-copy-btn:hover { background-color: var(--success-hover); }
 
         .toast {
             position: fixed;
@@ -348,10 +389,10 @@
 <body>
 
     <div class="container">
-        <!-- Abas Seletoras de Módulo -->
         <div class="nav-tabs">
             <button class="tab-btn active" onclick="switchModule('despachos', this)">Despachos</button>
             <button class="tab-btn" onclick="switchModule('taxas', this)">Calculadora de Taxa</button>
+            <button class="tab-btn" id="tabGerenciamentoBtn" onclick="switchModule('gerenciamento', this)" style="border-left: 2px solid var(--accent-color);"><i class="fa-solid fa-users-gear"></i> Gerenciar Equipe</button>
         </div>
 
         <div class="header-system">
@@ -376,47 +417,109 @@
 
             <div class="form-group">
                 <label for="nomeAutor">NOME DO AUTOR / CLIENTE</label>
-                <input type="text" id="nomeAutor" placeholder="Ex: João Silva">
-            </div>
-
-            <div class="form-group" id="fieldPassaporte">
-                <label for="passaporteAutor">PASSAPORTE / ID RP DO AUTOR</label>
-                <input type="text" id="passaporteAutor" placeholder="Ex: 181871">
+                <input type="text" id="nomeAutor" placeholder="Ex: Wandinha Addams">
             </div>
 
             <div class="form-group">
-                <label for="nomeAdvogado">NOME DO ADVOGADO</label>
-                <input type="text" id="nomeAdvogado" placeholder="Ex: Dr. Carlos Souza">
-            </div>
-
-            <div class="form-group">
-                <label for="idJuiz">ID DO DISCORD - JUIZ</label>
-                <input type="text" id="idJuiz" placeholder="Ex: 123456789012345678">
-            </div>
-
-            <div class="form-group">
-                <label for="idAdvogado">ID DO DISCORD - ADVOGADO</label>
-                <input type="text" id="idAdvogado" placeholder="Ex: 123456789012345678">
+                <label for="passaporteAutor">PASSAPORTE DO AUTOR</label>
+                <input type="text" id="passaporteAutor" placeholder="Ex: 137081">
             </div>
 
             <div class="form-group">
                 <label for="idAutor">ID DO DISCORD - AUTOR / CLIENTE</label>
-                <input type="text" id="idAutor" placeholder="Ex: 123456789012345678">
+                <input type="text" id="idAutor" placeholder="Ex: 538874591083364383">
             </div>
 
-            <div class="form-group conditional-field" id="fieldPsicologoNome">
-                <label for="nomePsicologo">NOME DO PSICÓLOGO</label>
-                <input type="text" id="nomePsicologo" placeholder="Ex: Dra. Ana Paula">
+            <!-- SELEÇÃO DE ADVOGADO -->
+            <div class="form-group">
+                <label for="selectAdvogado">SELECIONE O ADVOGADO</label>
+                <select id="selectAdvogado" class="select-cadastrado" onchange="toggleManualInput('Advogado')">
+                    <option value="manual">Outro (Digitar Manualmente abaixo)</option>
+                </select>
+                <div id="manualAdvogadoBox" class="manual-input-box">
+                    <div style="margin-bottom: 10px;">
+                        <label style="font-size: 11px;">NOME DO ADVOGADO MANUAL</label>
+                        <input type="text" id="nomeAdvogadoManual" placeholder="Ex: Dr. Bruno Prado">
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <label style="font-size: 11px;">PASSAPORTE MANUAL</label>
+                        <input type="text" id="idInGameAdvogadoManual" placeholder="Ex: 115237">
+                    </div>
+                    <div>
+                        <label style="font-size: 11px;">ID DO DISCORD - ADVOGADO MANUAL</label>
+                        <input type="text" id="idAdvogadoManual" placeholder="Ex: 533273417290350613">
+                    </div>
+                </div>
             </div>
 
-            <div class="form-group conditional-field" id="fieldPsicologoId">
-                <label for="idPsicologo">ID DO DISCORD - PSICÓLOGO RESPONSÁVEL</label>
-                <input type="text" id="idPsicologo" placeholder="Ex: 123456789012345678">
+            <!-- SELEÇÃO DE JUIZ -->
+            <div class="form-group">
+                <label for="selectJuiz">SELECIONE O JUIZ</label>
+                <select id="selectJuiz" class="select-cadastrado" onchange="toggleManualInput('Juiz')">
+                    <option value="manual">Outro (Digitar Manualmente abaixo)</option>
+                </select>
+                <div id="manualJuizBox" class="manual-input-box">
+                    <div style="margin-bottom: 10px;">
+                        <label style="font-size: 11px;">NOME DO JUIZ MANUAL</label>
+                        <input type="text" id="nomeJuizManual" placeholder="Ex: Magistrado. Zeca">
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <label style="font-size: 11px;">PASSAPORTE MANUAL</label>
+                        <input type="text" id="idInGameJuizManual" placeholder="Ex: 181871">
+                    </div>
+                    <div>
+                        <label style="font-size: 11px;">ID DO DISCORD - JUIZ MANUAL</label>
+                        <input type="text" id="idJuizManual" placeholder="Ex: 1223410694943150221">
+                    </div>
+                </div>
             </div>
 
-            <div class="form-group conditional-field" id="fieldTirosId">
-                <label for="idTiros">ID DO DISCORD - RESPONSÁVEL PELO TESTE DE TIROS</label>
-                <input type="text" id="idTiros" placeholder="Ex: 123456789012345678">
+            <!-- SELEÇÃO DE PSICÓLOGO -->
+            <div class="form-group conditional-field" id="fieldPsicologoCompleto">
+                <label for="selectPsicologo">SELECIONE O PSICÓLOGO</label>
+                <select id="selectPsicologo" class="select-cadastrado" onchange="toggleManualInput('Psicologo')">
+                    <option value="manual">Outro (Digitar Manualmente abaixo)</option>
+                </select>
+                <div id="manualPsicologoBox" class="manual-input-box">
+                    <div style="margin-bottom: 10px;">
+                        <label style="font-size: 11px;">NOME DO PSICÓLOGO MANUAL</label>
+                        <input type="text" id="nomePsicologoManual" placeholder="Ex: Dra. Carine S.">
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <label style="font-size: 11px;">PASSAPORTE MANUAL</label>
+                        <input type="text" id="idInGamePsicologoManual" placeholder="Ex: 305">
+                    </div>
+                    <div>
+                        <label style="font-size: 11px;">ID DO DISCORD - PSICÓLOGO MANUAL</label>
+                        <input type="text" id="idPsicologoManual" placeholder="Ex: 1391560933297488035">
+                    </div>
+                </div>
+            </div>
+
+            <!-- SELEÇÃO DE INSTRUTOR DE TIROS -->
+            <div class="form-group conditional-field" id="fieldTirosCompleto">
+                <label for="selectTiros">SELECIONE O RESPONSÁVEL PELO TESTE DE TIROS</label>
+                <select id="selectTiros" class="select-cadastrado" onchange="toggleManualInput('Tiros')">
+                    <option value="manual">Outro (Digitar Manualmente abaixo)</option>
+                </select>
+                <div id="manualTirosBox" class="manual-input-box">
+                    <div style="margin-bottom: 10px;">
+                        <label style="font-size: 11px;">NOME DO RESP. TIROS MANUAL</label>
+                        <input type="text" id="nomeTirosManual" placeholder="Ex: Hélio.">
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <label style="font-size: 11px;">FUNÇÃO COGNITIVA / CARGO MANUAL (Ex: Delegado, Escrivão 4)</label>
+                        <input type="text" id="funcaoTirosManual" placeholder="Ex: Delegado, Escrivão 4, Escrivão 3, Coordenador">
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <label style="font-size: 11px;">PASSAPORTE MANUAL</label>
+                        <input type="text" id="idInGameTirosManual" placeholder="Ex: 153565">
+                    </div>
+                    <div>
+                        <label style="font-size: 11px;">ID DO DISCORD - RESP. TIROS MANUAL</label>
+                        <input type="text" id="idTirosManual" placeholder="Ex: 699049464249319625">
+                    </div>
+                </div>
             </div>
 
             <div class="form-group conditional-field" id="fieldArmamento">
@@ -440,22 +543,34 @@
                     <button class="btn-excluir" onclick="removePrisaoRow(this)">Excluir</button>
                 </div>
             </div>
-
             <button class="btn-add-prisao" onclick="addPrisaoRow()">+ Adicionar Prisão</button>
 
             <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 25px 0;">
 
             <div class="inline-group">
                 <div style="flex: 1; min-width: 200px;">
-                    <label>Juiz - ID Discord</label>
-                    <input type="text" id="reabJuizId" placeholder="Ex: 123456789012345678">
+                    <label for="selectReabJuiz">Juiz - Selecionar</label>
+                    <select id="selectReabJuiz" class="select-cadastrado" onchange="toggleManualInput('ReabJuiz')">
+                        <option value="manual">Outro (Digitar Manualmente)</option>
+                    </select>
+                    <div id="manualReabJuizBox" class="manual-input-box" style="margin-top:5px;">
+                        <input type="text" id="reabJuizNomeManual" placeholder="Nome do Juiz" style="margin-bottom: 5px;">
+                        <input type="text" id="reabJuizIdInGameManual" placeholder="Passaporte" style="margin-bottom: 5px;">
+                        <input type="text" id="reabJuizIdManual" placeholder="ID Discord do Juiz">
+                    </div>
                 </div>
                 <div style="flex: 1; min-width: 200px;">
-                    <label>Advogado - ID Discord</label>
-                    <input type="text" id="reabAdvId" placeholder="Ex: 123456789012345678">
+                    <label for="selectReabAdv">Advogado - Selecionar</label>
+                    <select id="selectReabAdv" class="select-cadastrado" onchange="toggleManualInput('ReabAdv')">
+                        <option value="manual">Outro (Digitar Manualmente)</option>
+                    </select>
+                    <div id="manualReabAdvBox" class="manual-input-box" style="margin-top:5px;">
+                        <input type="text" id="reabAdvNomeManual" placeholder="Nome do Advogado" style="margin-bottom: 5px;">
+                        <input type="text" id="reabAdvIdInGameManual" placeholder="Passaporte" style="margin-bottom: 5px;">
+                        <input type="text" id="reabAdvIdManual" placeholder="ID Discord do Advogado">
+                    </div>
                 </div>
             </div>
-
             <div class="inline-group">
                 <div style="flex: 2; min-width: 200px;">
                     <label>Nome Cliente</label>
@@ -463,35 +578,76 @@
                 </div>
                 <div style="flex: 1.5; min-width: 180px;">
                     <label>Cliente - ID Discord</label>
-                    <input type="text" id="reabClienteId" placeholder="Ex: 123456789012345678">
+                    <input type="text" id="reabClienteId" placeholder="Ex: 780835619727212575">
                 </div>
                 <div style="flex: 1; min-width: 120px;">
-                    <label>Cliente - ID RP</label>
+                    <label>Cliente - Passaporte</label>
                     <input type="text" id="reabClienteRP" placeholder="Ex: 1982">
                 </div>
             </div>
-
             <div class="live-counter">
                 Meses: <span id="lblMeses">0</span> | Taxa: <span id="lblTaxa">R$ 0,00</span>
             </div>
         </div>
 
-        <!-- Painel de Botões Geral -->
-        <div class="btn-container">
+        <!-- ================= MÓDULO 3: GERENCIAMENTO DE EQUIPE ================= -->
+        <div id="moduleGerenciamento" class="module-section">
+            <div class="card-cadastro">
+                <label style="color: var(--accent-color); margin-bottom: 15px;">➕ Cadastrar Novo Integrante (Nuvem Global)</label>
+                
+                <div class="form-group">
+                    <label for="cadTipo">Tipo de Cargo</label>
+                    <select id="cadTipo" onchange="toggleCadFuncaoField()">
+                        <option value="Juiz">Juiz</option>
+                        <option value="Advogado">Advogado</option>
+                        <option value="Psicologo">Psicólogo</option>
+                        <option value="Tiros">Instrutor / Responsável por Tiros</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="groupCadFuncao" style="display: none;">
+                    <label for="cadFuncao">Função / Patente / Cargo Corporativo (Apenas p/ Instrutores de Tiros)</label>
+                    <input type="text" id="cadFuncao" placeholder="Ex: Delegado, Escrivão 4, Escrivão 3, Coordenador">
+                </div>
+
+                <div class="form-group">
+                    <label for="cadNome">Nome Completo / Prefixo</label>
+                    <input type="text" id="cadNome" placeholder="Ex: Adv. Bruno, Juiz Zeca ou Psic. Carine">
+                </div>
+
+                <div class="form-group">
+                    <label for="cadIdInGame">Passaporte</label>
+                    <input type="text" id="cadIdInGame" placeholder="Ex: 137035">
+                </div>
+
+                <div class="form-group">
+                    <label for="cadIdDiscord">ID do Discord</label>
+                    <input type="text" id="cadIdDiscord" placeholder="Ex: 780835619727212575">
+                </div>
+
+                <button class="btn-add-membro" onclick="salvarNovoMembro()" style="width: 100%; margin-top: 10px;">Salvar em Nuvem Compartilhada</button>
+            </div>
+
+            <div class="form-group">
+                <label>📋 Integrantes Cadastrados Atualmente (Visível para todos)</label>
+                <div class="lista-cadastrados" id="listaMembrosVisual">
+                    <div style="text-align: center; color: var(--accent-color); padding: 20px;">Sincronizando com a nuvem...</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="btn-container" id="painelBotoesAcao">
             <button class="btn-generate" onclick="executeModuleAction()">Gerar Decisão</button>
             <button class="btn-clear" onclick="clearAll()">Limpar Tudo</button>
         </div>
 
-        <!-- Output Final Dinâmico -->
         <div class="output-container" id="outputContainer">
-            <!-- Bloco do Texto Principal -->
             <div class="output-box-wrapper" id="wrapperTexto1">
                 <div class="output-box-title" id="titleTexto1">Texto Judicial / Decisão:</div>
                 <textarea id="outputText" readonly></textarea>
                 <button class="mini-copy-btn" onclick="copySpecificText('outputText')">Copiar Texto Acima</button>
             </div>
 
-            <!-- Bloco do Texto Secundário (Aparece apenas se for Porte Emitido) -->
             <div class="output-box-wrapper" id="wrapperTexto2" style="display: none;">
                 <div class="output-box-title">Texto 2 - Registro de Sistema / Logs:</div>
                 <textarea id="outputText2" readonly style="height: 160px;"></textarea>
@@ -500,10 +656,256 @@
         </div>
     </div>
 
-    <div class="toast" id="toast"><i class="fa-solid fa-check" style="color: #c5a880; margin-right: 8px;"></i> Conteúdo copiado!</div>
+    <div class="toast" id="toast"><i class="fa-solid fa-check" style="color: #c5a880; margin-right: 8px;"></i> Operação concluída!</div>
 
     <script>
+        const BIN_ID = "6a5a6e9df5f4af5e299d9f6a";
+        const MASTER_KEY = "$2a$10$pGXbhmcAPBgBLcMnyW82gepizg1e1gvbezqp57nF42yetv2fIIcXy";
+        const SENHA_GERENCIAMENTO = "1385";
+        
+        let usuarioAutenticado = false;
         let currentModule = 'despachos';
+        let dadosEquipe = { Juiz: [], Advogado: [], Psicologo: [], Tiros: [] };
+
+        function verificarAutenticacao() {
+            if (usuarioAutenticado) return true;
+            const senhaDigitada = prompt("Insira a senha de acesso do Gerenciamento:");
+            if (senhaDigitada === SENHA_GERENCIAMENTO) {
+                usuarioAutenticado = true;
+                return true;
+            } else {
+                alert("Senha Incorreta! Acesso negado.");
+                return false;
+            }
+        }
+
+        function toggleCadFuncaoField() {
+            const tipo = document.getElementById("cadTipo").value;
+            document.getElementById("groupCadFuncao").style.display = (tipo === "Tiros") ? "block" : "none";
+        }
+
+        async function carregarBancoDados() {
+            if(MASTER_KEY.includes("$2a$10$pGXbhmcAPBgBLcMnyW82gepizg1e1gvbezqp57nF42yetv2fIIcXy")) {
+                const dadosSalvos = localStorage.getItem('judiciario_rp_equipe');
+                if (dadosSalvos) {
+                    dadosEquipe = JSON.parse(dadosSalvos);
+                    ['Juiz', 'Advogado', 'Psicologo', 'Tiros'].forEach(t => { if(!dadosEquipe[t]) dadosEquipe[t] = []; });
+                }
+                atualizarSelectsEListas();
+                return;
+            }
+
+            try {
+                const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+                    headers: { "X-Master-Key": MASTER_KEY }
+                });
+                const data = await res.json();
+                if (data.record) {
+                    dadosEquipe = data.record;
+                    ['Juiz', 'Advogado', 'Psicologo', 'Tiros'].forEach(t => { if(!dadosEquipe[t]) dadosEquipe[t] = []; });
+                }
+            } catch (err) {
+                console.error("Erro ao carregar dados da nuvem:", err);
+            }
+            atualizarSelectsEListas();
+        }
+
+        async function salvarNaNuvem() {
+            atualizarSelectsEListas();
+            if(MASTER_KEY.includes("$2a$10$pGXbhmcAPBgBLcMnyW82gepizg1e1gvbezqp57nF42yetv2fIIcXyS")) {
+                localStorage.setItem('judiciario_rp_equipe', JSON.stringify(dadosEquipe));
+                return;
+            }
+
+            try {
+                await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-Master-Key": MASTER_KEY
+                    },
+                    body: JSON.stringify(dadosEquipe)
+                });
+            } catch (err) {
+                console.error("Erro ao salvar na nuvem:", err);
+            }
+        }
+
+        function verificarEAdicionarAutomatico(tipo, nome, idInGame, idDiscord, funcao = "") {
+            if (!idDiscord || idDiscord.trim() === "" || !nome || nome.trim() === "") return false;
+            
+            const cleanIdD = idDiscord.trim();
+            const cleanNome = nome.trim();
+            const cleanIdIG = idInGame.trim();
+
+            if (!dadosEquipe[tipo]) dadosEquipe[tipo] = [];
+            
+            const existe = dadosEquipe[tipo].some(m => m.id === cleanIdD);
+            if (!existe) {
+                dadosEquipe[tipo].push({ id: cleanIdD, nome: cleanNome, idInGame: cleanIdIG, funcao: funcao });
+                return true;
+            }
+            return false;
+        }
+
+        async function salvarNovoMembro() {
+            if (!verificarAutenticacao()) return;
+
+            const tipo = document.getElementById("cadTipo").value;
+            const nome = document.getElementById("cadNome").value.trim();
+            const idInGame = document.getElementById("cadIdInGame").value.trim();
+            const idDiscord = document.getElementById("cadIdDiscord").value.trim();
+            const funcao = (tipo === "Tiros") ? document.getElementById("cadFuncao").value.trim() : "";
+
+            if (!nome || !idDiscord || !idInGame) {
+                alert("Por favor, preencha todos os campos obrigatórios (Nome, Passaporte e Discord)!");
+                return;
+            }
+
+            if(tipo === "Tiros" && !funcao) {
+                alert("Por favor, preencha a função do instrutor de tiros (Ex: Delegado)!");
+                return;
+            }
+
+            if(!dadosEquipe[tipo]) dadosEquipe[tipo] = [];
+
+            const existe = dadosEquipe[tipo].some(m => m.id === idDiscord);
+            if (existe) {
+                alert("Este ID de Discord já está cadastrado neste cargo!");
+                return;
+            }
+
+            dadosEquipe[tipo].push({ id: idDiscord, nome: nome, idInGame: idInGame, funcao: funcao });
+            
+            document.getElementById("cadNome").value = "";
+            document.getElementById("cadIdInGame").value = "";
+            document.getElementById("cadIdDiscord").value = "";
+            document.getElementById("cadFuncao").value = "";
+            
+            await salvarNaNuvem();
+            mostrarToast();
+        }
+
+        async function removerMembro(tipo, index) {
+            if (!verificarAutenticacao()) return;
+            dadosEquipe[tipo].splice(index, 1);
+            await salvarNaNuvem();
+        }
+
+        function atualizarSelectsEListas() {
+            const tipos = ['Juiz', 'Advogado', 'Psicologo', 'Tiros'];
+            
+            tipos.forEach(tipo => {
+                const select = document.getElementById(`select${tipo}`);
+                if (select) {
+                    const valorAtual = select.value;
+                    select.innerHTML = '<option value="manual">Outro (Digitar Manualmente abaixo)</option>';
+                    dadosEquipe[tipo].forEach(membro => {
+                        const opt = document.createElement('option');
+                        opt.value = membro.id; 
+                        opt.setAttribute('data-nome', membro.nome);
+                        opt.setAttribute('data-ingame', membro.idInGame || "");
+                        opt.setAttribute('data-funcao', membro.funcao || "");
+                        
+                        let labelExibicao = `${membro.nome} (Passaporte: ${membro.idInGame || 'N/I'})`;
+                        if (tipo === 'Tiros' && membro.funcao) {
+                            labelExibicao = `${membro.nome} (${membro.funcao}) (Passaporte: ${membro.idInGame})`;
+                        }
+                        opt.innerText = labelExibicao;
+                        select.appendChild(opt);
+                    });
+                    select.value = valorAtual;
+                    if(!select.value) select.value = "manual";
+                    toggleManualInput(tipo);
+                }
+            });
+
+            // Sincronizar calculadora com os mesmos dados da nuvem
+            const selectReabJuiz = document.getElementById("selectReabJuiz");
+            if (selectReabJuiz) {
+                const valJuiz = selectReabJuiz.value;
+                selectReabJuiz.innerHTML = '<option value="manual">Outro (Digitar Manualmente abaixo)</option>';
+                dadosEquipe['Juiz'].forEach(membro => {
+                    const opt = document.createElement('option');
+                    opt.value = membro.id;
+                    opt.setAttribute('data-nome', membro.nome);
+                    opt.setAttribute('data-ingame', membro.idInGame || "");
+                    opt.innerText = `${membro.nome} (Passaporte: ${membro.idInGame || 'N/I'})`;
+                    selectReabJuiz.appendChild(opt);
+                });
+                selectReabJuiz.value = valJuiz;
+                if(!selectReabJuiz.value) selectReabJuiz.value = "manual";
+                toggleManualInput('ReabJuiz');
+            }
+
+            const selectReabAdv = document.getElementById("selectReabAdv");
+            if (selectReabAdv) {
+                const valAdv = selectReabAdv.value;
+                selectReabAdv.innerHTML = '<option value="manual">Outro (Digitar Manualmente abaixo)</option>';
+                dadosEquipe['Advogado'].forEach(membro => {
+                    const opt = document.createElement('option');
+                    opt.value = membro.id;
+                    opt.setAttribute('data-nome', membro.nome);
+                    opt.setAttribute('data-ingame', membro.idInGame || "");
+                    opt.innerText = `${membro.nome} (Passaporte: ${membro.idInGame || 'N/I'})`;
+                    selectReabAdv.appendChild(opt);
+                });
+                selectReabAdv.value = valAdv;
+                if(!selectReabAdv.value) selectReabAdv.value = "manual";
+                toggleManualInput('ReabAdv');
+            }
+
+            // Organização visual da lista por categorias separadas
+            const listaVisual = document.getElementById("listaMembrosVisual");
+            if(listaVisual) {
+                listaVisual.innerHTML = "";
+                let total = 0;
+                
+                const mapeamentoCategorias = {
+                    'Juiz': '⚖️ Juízes Magistrados',
+                    'Advogado': '💼 Advogados / Defensores',
+                    'Psicologo': '🧠 Psicólogos Peritos',
+                    'Tiros': '🎯 Instrutores / Responsáveis por Teste de Tiro'
+                };
+
+                tipos.forEach(tipo => {
+                    const membrosFiltrados = dadosEquipe[tipo] || [];
+                    if(membrosFiltrados.length > 0) {
+                        // Cria o título da categoria separadora
+                        const tituloCategoria = document.createElement('div');
+                        tituloCategoria.className = "categoria-titulo";
+                        tituloCategoria.innerText = mapeamentoCategorias[tipo];
+                        listaVisual.appendChild(tituloCategoria);
+
+                        membrosFiltrados.forEach((membro, index) => {
+                            total++;
+                            const div = document.createElement('div');
+                            div.className = "item-membro";
+                            let prefixoDinamico = tipo === "Tiros" && membro.funcao ? `[${membro.funcao.toUpperCase()}]` : `[${tipo.toUpperCase()}]`;
+                            div.innerHTML = `
+                                <span><strong>${prefixoDinamico}</strong> ${membro.nome} (Passaporte: ${membro.idInGame || 'N/I'}) (Discord: ${membro.id})</span>
+                                <button class="btn-mini-excluir" onclick="removerMembro('${tipo}', ${index})"><i class="fa-solid fa-trash-can"></i> Remover</button>
+                            `;
+                            listaVisual.appendChild(div);
+                        });
+                    }
+                });
+
+                if(total === 0) {
+                    listaVisual.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 20px;">Nenhum integrante cadastrado ainda.</div>';
+                }
+            }
+        }
+
+        function toggleManualInput(tipo) {
+            const select = document.getElementById(`select${tipo}`);
+            const box = document.getElementById(`manual${tipo}Box`);
+            if (select && select.value === "manual") {
+                if(box) box.style.display = "block";
+            } else if (box) {
+                box.style.display = "none";
+            }
+        }
 
         function formatMention(id) {
             if (!id || id.trim() === "") return "(Não informado)";
@@ -513,6 +915,10 @@
         }
 
         function switchModule(moduleName, element) {
+            if (moduleName === 'gerenciamento') {
+                if (!verificarAutenticacao()) return;
+            }
+
             currentModule = moduleName;
             document.querySelectorAll('.nav-tabs .tab-btn').forEach(btn => btn.classList.remove('active'));
             element.classList.add('active');
@@ -521,28 +927,38 @@
             const title = document.getElementById('mainTitle');
             const subtitle = document.getElementById('mainSubtitle');
             const icon = document.getElementById('mainIcon');
+            const painelBotoes = document.getElementById('painelBotoesAcao');
+
+            painelBotoes.style.display = "flex";
 
             if (moduleName === 'despachos') {
                 document.getElementById('moduleDespachos').classList.add('active');
                 title.innerText = "Sistema Judiciário RP";
                 subtitle.innerText = "Módulo de Despachos e Portes";
                 icon.className = "fa-solid fa-scale-balanced";
-            } else {
+            } else if (moduleName === 'taxas') {
                 document.getElementById('moduleTaxas').classList.add('active');
                 title.innerText = "Calculadora de Taxa de Reabilitação";
                 subtitle.innerText = "Cálculo de Penas e Taxas de Limpeza";
                 icon.className = "fa-solid fa-calculator";
                 liveCalculateReab();
+            } else {
+                document.getElementById('moduleGerenciamento').classList.add('active');
+                title.innerText = "Gerenciamento da Equipe";
+                subtitle.innerText = "Cadastre ou remova Juízes, Advogados, Psicólogos e Instrutores";
+                icon.className = "fa-solid fa-users-gear";
+                painelBotoes.style.display = "none";
+                toggleCadFuncaoField();
             }
             
             document.getElementById("outputContainer").style.display = "none";
+            atualizarSelectsEListas();
         }
 
         function toggleFields() {
             const status = document.getElementById("statusSelect").value;
-            document.getElementById("fieldPsicologoNome").style.display = (status === "2" || status === "3") ? "block" : "none";
-            document.getElementById("fieldPsicologoId").style.display = (status === "2" || status === "3") ? "block" : "none";
-            document.getElementById("fieldTirosId").style.display = (status === "3") ? "block" : "none";
+            document.getElementById("fieldPsicologoCompleto").style.display = (status === "2" || status === "3") ? "block" : "none";
+            document.getElementById("fieldTirosCompleto").style.display = (status === "3") ? "block" : "none";
             document.getElementById("fieldArmamento").style.display = (status === "4") ? "block" : "none";
         }
 
@@ -574,8 +990,8 @@
             let totalMinutos = 0;
             document.querySelectorAll(".prisaon-row").forEach(row => {
                 const horas = parseInt(row.querySelector(".input-horas").value) || 0;
-                const minutos = parseInt(row.querySelector(".input-minutos").value) || 0;
-                totalMinutos += (horas * 60) + minutos;
+                const minutes = parseInt(row.querySelector(".input-minutos").value) || 0;
+                totalMinutos += (horas * 60) + minutes;
             });
             const meses = totalMinutos;
             const taxaTotal = meses * 28000;
@@ -584,11 +1000,97 @@
             return { meses, taxaTotal };
         }
 
-        function executeModuleAction() {
+        async function executeModuleAction() {
+            let houveMudancaNuvem = false;
+
             if (currentModule === 'despachos') {
+                if(document.getElementById("selectJuiz").value === "manual"){
+                    const nomeJ = document.getElementById("nomeJuizManual").value;
+                    const idInGameJ = document.getElementById("idInGameJuizManual").value;
+                    const idJ = document.getElementById("idJuizManual").value;
+                    if(verificarEAdicionarAutomatico("Juiz", nomeJ || ("Juiz " + idInGameJ), idInGameJ, idJ)) houveMudancaNuvem = true;
+                }
+                if(document.getElementById("selectAdvogado").value === "manual"){
+                    const nomeA = document.getElementById("nomeAdvogadoManual").value;
+                    const idInGameA = document.getElementById("idInGameAdvogadoManual").value;
+                    const idA = document.getElementById("idAdvogadoManual").value;
+                    if(verificarEAdicionarAutomatico("Advogado", nomeA, idInGameA, idA)) houveMudancaNuvem = true;
+                }
+                
+                const status = document.getElementById("statusSelect").value;
+                if((status === "2" || status === "3") && document.getElementById("selectPsicologo").value === "manual"){
+                    const nomeP = document.getElementById("nomePsicologoManual").value;
+                    const idInGameP = document.getElementById("idInGamePsicologoManual").value;
+                    const idP = document.getElementById("idPsicologoManual").value;
+                    if(verificarEAdicionarAutomatico("Psicologo", nomeP, idInGameP, idP)) houveMudancaNuvem = true;
+                }
+                if(status === "3" && document.getElementById("selectTiros").value === "manual"){
+                    const nomeT = document.getElementById("nomeTirosManual").value;
+                    const funcaoT = document.getElementById("funcaoTirosManual").value || "Instrutor";
+                    const idInGameT = document.getElementById("idInGameTirosManual").value;
+                    const idT = document.getElementById("idTirosManual").value;
+                    if(verificarEAdicionarAutomatico("Tiros", nomeT || ("Instrutor " + idInGameT), idInGameT, idT, funcaoT)) houveMudancaNuvem = true;
+                }
+
                 generateDespacho();
-            } else {
+
+            } else if (currentModule === 'taxas') {
+                if(document.getElementById("selectReabJuiz").value === "manual"){
+                    const nomeRJ = document.getElementById("reabJuizNomeManual").value;
+                    const idInGameRJ = document.getElementById("reabJuizIdInGameManual").value;
+                    const idRJ = document.getElementById("reabJuizIdManual").value;
+                    if(verificarEAdicionarAutomatico("Juiz", nomeRJ || ("Juiz " + idInGameRJ), idInGameRJ, idRJ)) houveMudancaNuvem = true;
+                }
+                if(document.getElementById("selectReabAdv").value === "manual"){
+                    const nomeRA = document.getElementById("reabAdvNomeManual").value;
+                    const idInGameRA = document.getElementById("reabAdvIdInGameManual").value;
+                    const idRA = document.getElementById("reabAdvIdManual").value;
+                    if(verificarEAdicionarAutomatico("Advogado", nomeRA, idInGameRA, idRA)) houveMudancaNuvem = true;
+                }
+
                 generateReabDecision();
+            }
+
+            if(houveMudancaNuvem) {
+                await salvarNaNuvem();
+            }
+        }
+
+        function getMembroDataEx(tipo, prefixoElemento) {
+            const select = document.getElementById(`select${prefixoElemento}`);
+            if (!select || select.value === "manual") {
+                const subf = prefixoElemento.startsWith("Reab") ? "Reab" + tipo : tipo;
+                let manualBoxSufix = prefixoElemento.startsWith("Reab") ? "Reab" + tipo : tipo;
+                
+                // Mapeamento específico dos IDs manuais da calculadora
+                let nomeId = tipo === "Juiz" ? "nomeJuizManual" : "nomeAdvogadoManual";
+                let passaporteId = tipo === "Juiz" ? "idInGameJuizManual" : "idInGameAdvogadoManual";
+                let discordId = tipo === "Juiz" ? "idJuizManual" : "idAdvogadoManual";
+
+                if (prefixoElemento === "ReabJuiz") {
+                    nomeId = "reabJuizNomeManual"; passaporteId = "reabJuizIdInGameManual"; discordId = "reabJuizIdManual";
+                } else if (prefixoElemento === "ReabAdv") {
+                    nomeId = "reabAdvNomeManual"; passaporteId = "reabAdvIdInGameManual"; discordId = "reabAdvIdManual";
+                } else if (tipo === "Psicologo") {
+                    nomeId = "nomePsicologoManual"; passaporteId = "idInGamePsicologoManual"; discordId = "idPsicologoManual";
+                } else if (tipo === "Tiros") {
+                    nomeId = "nomeTirosManual"; passaporteId = "idInGameTirosManual"; discordId = "idTirosManual";
+                }
+
+                return {
+                    id: document.getElementById(discordId).value,
+                    idInGame: document.getElementById(passaporteId).value || "N/I",
+                    nome: document.getElementById(nomeId).value || `**${tipo.toUpperCase()}**`,
+                    funcao: tipo === "Tiros" ? (document.getElementById("funcaoTirosManual").value || "Instrutor de Tiros") : ""
+                };
+            } else {
+                const selectedOption = select.options[select.selectedIndex];
+                return {
+                    id: select.value,
+                    idInGame: selectedOption.getAttribute("data-ingame") || "N/I",
+                    nome: selectedOption.getAttribute("data-nome") || selectedOption.text,
+                    funcao: selectedOption.getAttribute("data-funcao") || ""
+                };
             }
         }
 
@@ -596,46 +1098,49 @@
             const status = document.getElementById("statusSelect").value;
             const nomeAutor = document.getElementById("nomeAutor").value || "**NOME DO AUTOR**";
             const passaporte = document.getElementById("passaporteAutor").value || "000000";
-            const nomeAdvogado = document.getElementById("nomeAdvogado").value || "**ADVOGADO**";
-            const nomePsicologo = document.getElementById("nomePsicologo").value || "**NOME DO PSICÓLOGO**";
             const armamento = document.getElementById("txtArmamento").value || "PX4 com 80 munições";
-
-            const idJuiz = formatMention(document.getElementById("idJuiz").value);
-            const idAdvogado = formatMention(document.getElementById("idAdvogado").value);
             const idAutor = formatMention(document.getElementById("idAutor").value);
-            const idPsicologo = formatMention(document.getElementById("idPsicologo").value);
-            const idTiros = formatMention(document.getElementById("idTiros").value);
+
+            const dadosJuiz = getMembroDataEx("Juiz", "Juiz");
+            const dadosAdvogado = getMembroDataEx("Advogado", "Advogado");
+            const dadosPsicologo = getMembroDataEx("Psicologo", "Psicologo");
+            const dadosTiros = getMembroDataEx("Tiros", "Tiros");
+
+            const idJuiz = formatMention(dadosJuiz.id);
+            const idAdvogado = formatMention(dadosAdvogado.id);
+            const idPsicologo = formatMention(dadosPsicologo.id);
+            const idTiros = formatMention(dadosTiros.id);
 
             let finalText = "";
             document.getElementById("wrapperTexto2").style.display = "none";
             document.getElementById("titleTexto1").innerText = "Texto Judicial / Decisão:";
 
             if (status === "1") {
-                finalText = `**DESPACHO - ANÁLISE PRELIMINAR**\n\nVistos, etc.\n\nTrata-se de pedido de Emissão de Porte de Arma solicitado por **${nomeAutor}**, representado por **${nomeAdvogado}**\n\nVerifico que o requerente atende aos requisitos preliminares para prosseguimento do feito.\n\nPortanto, **DECIDO: DEFIRO** o prosseguimento do pedido e determino o encaminhamento para Avaliação Psicológica.\n\n🧠 **STATUS: AGUARDANDO LAUDO PSICOLÓGICO**\n\n---\n\nJuiz: ${idJuiz}\nAdvogado: ${idAdvogado}\nAutor: ${idAutor}\n\nNada mais.`;
+                finalText = `**DESPACHO - ANÁLISE PRELIMINAR**\n\nVistos, etc.\n\nTrata-se de pedido de Emissão de Porte de Arma solicitado por **${nomeAutor}** (Passaporte: ${passaporte}), representado por seu advogado.\n\nVerifico que o requerente atende aos requisitos preliminares para prosseguimento do feito.\n\nPortanto, **DECIDO: DEFIRO** o prosseguimento do pedido e determino o encaminhamento para Avaliação Psicológica.\n\n🧠 **STATUS: AGUARDANDO LAUDO PSICOLÓGICO**\n\n---\n\n**Juiz:** ${idJuiz}\n**Advogado:** ${idAdvogado}\n**Autor/Requerente:** ${nomeAutor} | ${idAutor}\n\nNada mais.`;
             } else if (status === "2") {
-                finalText = `**DESPACHO - ANÁLISE DE LAUDO**\n\nVistos, etc.\n\nTrata-se de pedido de Emissão de Porte de Arma solicitado por **${nomeAutor}** -\n\nConsta nos autos laudo psicológico favorável, emitido por **${nomePsicologo}**, considerando o requerente **APTO** para prosseguimento do processo.\n\nDiante do exposto, determino o encaminhamento para realização do Teste Prático de Manuseio e Disparo de Arma de Fogo.\n\n🎯 **STATUS: AGUARDANDO TESTE DE TIROS**\n\n---\n\nJuiz: ${idJuiz}\nAdvogado: ${idAdvogado}\nAutor: ${idAutor}\n\nPsicólogo Responsável: ${idPsicologo}\n\nNada mais.`;
+                finalText = `**DESPACHO - ANÁLISE DE LAUDO**\n\nVistos, etc.\n\nTrata-se de pedido de Emissão de Porte de Arma solicitado por **${nomeAutor}** (Passaporte: ${passaporte}).\n\nConsta nos autos laudo psicológico favorável, considerando o requerente **APTO** para prosseguimento do processo.\n\nDiante do exposto, determino o encaminhamento para realização do Teste Prático de Manuseio e Disparo de Arma de Fogo.\n\n🎯 **STATUS: AGUARDANDO TESTE DE TIROS**\n\n---\n\n**Juiz:** ${idJuiz}\n**Advogado:** ${idAdvogado}\n**Psicólogo Responsável:** ${idPsicologo}\n**Autor/Requerente:** ${nomeAutor} | ${idAutor}\n\nNada mais.`;
             } else if (status === "3") {
-                finalText = `**DESPACHO - ANÁLISE FINAL**\n\nVistos, etc.\n\nTrata-se de pedido de Emissão de Porte de Arma solicitado por **${nomeAutor}** -\n\nVerifico que o requerente foi considerado **APTO** na Avaliação Psicológica e **APROVADO** no Teste Prático de Manuseio e Disparo de Arma de Fogo, cumprindo integralmente todas as exigências previstas.\n\nDiante da inexistência de pendências, determino a emissão e posterior entrega do Porte de Arma ao requerente.\n\n📄 **STATUS: AGUARDANDO EMISSÃO E ENTREGA DO PORTE DE ARMA**\n\n---\n\nJuiz: ${idJuiz}\nAdvogado: ${idAdvogado}\nAutor: ${idAutor}\n\nPsicólogo Responsável: ${idPsicologo}\nResponsável pelo Teste de Tiros: ${idTiros}\n\nNada mais.`;
+                finalText = `**DESPACHO - ANÁLISE FINAL**\n\nVistos, etc.\n\nTrata-se de pedido de Emissão de Porte de Arma solicitado por **${nomeAutor}** (Passaporte: ${passaporte}).\n\nVerifico que o requerente foi considerado **APTO** na Avaliação Psicológica e **APROVADO** no Teste Prático de Manuseio e Disparo de Arma de Fogo, cumprindo integralmente todas as exigências previstas.\n\nDiante da inexistência de pendências, determino a emissão e posterior entrega do Porte de Arma ao requerente.\n\n📄 **STATUS: AGUARDANDO EMISSÃO E ENTREGA DO PORTE DE ARMA**\n\n---\n\n**Juiz:** ${idJuiz}\n**Advogado:** ${idAdvogado}\n**Psicólogo Responsável:** ${idPsicologo}\n**Responsável Teste de Tiros:** ${idTiros}\n**Autor/Requerente:** ${nomeAutor} | ${idAutor}\n\nNada mais.`;
             } else if (status === "4") {
-                // Sentença Final do Porte Emitido
                 finalText = `**⚖️ SENTENÇA FINAL - DEFERIMENTO**\n\n` +
-                            `**Vistos, etc.** Constato cumpridos os requisitos e **HOMOLOGO** a emissão de porte de arma.\n\n` +
+                            `**Vistos, etc.** Constato cumpridos os requisitos fundamentais e **HOMOLOGO** formalmente a emissão de porte de arma ao solicitante.\n\n` +
                             `**DETERMINAÇÕES FINAIS:**\n` +
-                            `1. **DETERMINO** a autorização do porte de arma do solicitante.\n` +
-                            `2. Convoco o solicitante para a emissão do porte na cidade.\n\n` +
+                            `1. **DETERMINO** a imediata liberação da eficácia do porte de arma.\n` +
+                            `2. Convoco o requerente para comparecer às repartições competentes da cidade para entrega física do documento.\n\n` +
                             `Dou o processo por **CONCLUÍDO**. Arquive-se. ✅\n\n` +
                             `**STATUS: PORTE EMITIDO**\n\n` +
                             `---\n` +
-                            `**Juiz:** ${idJuiz} | **Advogado:** ${idAdvogado} | **Cliente:** ${idAutor} (${idAutor}) - ID: ${passaporte}`;
+                            `**Juiz:** ${idJuiz}\n` +
+                            `**Advogado:** ${idAdvogado}\n` +
+                            `**Cliente/Portador:** ${nomeAutor} (Passaporte: ${passaporte}) | ${idAutor}`;
 
-                // Segunda Informação (Log / Registro)
                 const hoje = new Date();
                 const dataFormatada = hoje.toLocaleDateString('pt-BR');
                 
                 let textLog = `NOME: ${nomeAutor} - ${idAutor}\n` +
                              `PASSAPORTE: ${passaporte}\n` +
                              `ARMAMENTO: ${armamento}\n` +
-                             `AUTORIZADO POR : ${idJuiz}\n` +
+                             `AUTORIZADO POR : ${dadosJuiz.nome} (Passaporte: ${dadosJuiz.idInGame})\n` +
                              `FINALIZADO: ${dataFormatada}\n\n` +
                              `VALIDO EM TODO TERRITÓRIO NACIONAL\n` +
                              `OBS: A autorização perderá eficácia caso detido/embriagado/drogado.`;
@@ -651,8 +1156,12 @@
 
         function generateReabDecision() {
             const dataData = liveCalculateReab();
-            const juizM = formatMention(document.getElementById("reabJuizId").value);
-            const advM = formatMention(document.getElementById("reabAdvId").value);
+            
+            const dadosJuiz = getMembroDataEx("Juiz", "ReabJuiz");
+            const dadosAdvogado = getMembroDataEx("Advogado", "ReabAdv");
+
+            const juizM = formatMention(dadosJuiz.id);
+            const advM = formatMention(dadosAdvogado.id);
             const clienteM = formatMention(document.getElementById("reabClienteId").value);
             const clienteNome = document.getElementById("reabClienteNome").value || "Nome do Cliente";
             const clienteRP = document.getElementById("reabClienteRP").value || "0000";
@@ -662,12 +1171,14 @@
             document.getElementById("titleTexto1").innerText = "Texto Judicial / Decisão:";
 
             let output = `**⚖️ DECISÃO INTERLOCUTÓRIA - CÁLCULO DE TAXA**\n\n` +
-                         `Constato a Aptidão do requerente no Laudo anexado.\n\n` +
-                         `Meses Válidos para Limpeza: ${dataData.meses}\n\n` +
-                         `**VALOR TOTAL: ${valorFormatado}**\n\n` +
-                         `DETERMINO prazo de 3 dias para o pagamento ser efetivado ao **JUIZ** ${juizM}.\n\n` +
+                         `Constato a Aptidão do requerente no Laudo anexado aos autos.\n\n` +
+                         `Meses Válidos para Limpeza de Ficha: ${dataData.meses} meses.\n\n` +
+                         `**VALOR DA TAXA DE REABILITAÇÃO: ${valorFormatado}**\n\n` +
+                         `DETERMINO o prazo improrrogável de até 3 dias para que o pagamento integral seja efetivado diretamente à Magistratura.\n\n` +
                          `---\n\n` +
-                         `**Juiz:** ${juizM} | **Advogado:** ${advM} | **Cliente:** ${clienteNome} (${clienteM}) - ID: ${clienteRP}`;
+                         `**Juiz:** ${juizM}\n` +
+                         `**Advogado:** ${advM}\n` +
+                         `**Requerente/Cliente:** ${clienteNome} (Passaporte: ${clienteRP}) | ${clienteM}`;
 
             document.getElementById("outputText").value = output;
             document.getElementById("outputContainer").style.display = "block";
@@ -679,7 +1190,10 @@
             textarea.select();
             textarea.setSelectionRange(0, 99999);
             navigator.clipboard.writeText(textarea.value);
+            mostrarToast();
+        }
 
+        function mostrarToast() {
             const toast = document.getElementById("toast");
             toast.style.display = "block";
             setTimeout(() => { toast.style.display = "none"; }, 3000);
@@ -688,17 +1202,48 @@
         function clearAll() {
             document.getElementById("nomeAutor").value = "";
             document.getElementById("passaporteAutor").value = "";
-            document.getElementById("nomeAdvogado").value = "";
-            document.getElementById("idJuiz").value = "";
-            document.getElementById("idAdvogado").value = "";
             document.getElementById("idAutor").value = "";
-            document.getElementById("nomePsicologo").value = "";
-            document.getElementById("idPsicologo").value = "";
-            document.getElementById("idTiros").value = "";
+            
+            document.getElementById("selectAdvogado").value = "manual";
+            document.getElementById("nomeAdvogadoManual").value = "";
+            document.getElementById("idInGameAdvogadoManual").value = "";
+            document.getElementById("idAdvogadoManual").value = "";
+            
+            document.getElementById("selectJuiz").value = "manual";
+            document.getElementById("nomeJuizManual").value = "";
+            document.getElementById("idInGameJuizManual").value = "";
+            document.getElementById("idJuizManual").value = "";
+            
+            document.getElementById("selectPsicologo").value = "manual";
+            document.getElementById("nomePsicologoManual").value = "";
+            document.getElementById("idInGamePsicologoManual").value = "";
+            document.getElementById("idPsicologoManual").value = "";
+            
+            document.getElementById("selectTiros").value = "manual";
+            document.getElementById("nomeTirosManual").value = "";
+            document.getElementById("funcaoTirosManual").value = "";
+            document.getElementById("idInGameTirosManual").value = "";
+            document.getElementById("idTirosManual").value = "";
+            
+            toggleManualInput('Advogado');
+            toggleManualInput('Juiz');
+            toggleManualInput('Psicologo');
+            toggleManualInput('Tiros');
+
             document.getElementById("txtArmamento").value = "PX4 com 80 munições";
             
-            document.getElementById("reabJuizId").value = "";
-            document.getElementById("reabAdvId").value = "";
+            document.getElementById("selectReabJuiz").value = "manual";
+            document.getElementById("reabJuizNomeManual").value = "";
+            document.getElementById("reabJuizIdInGameManual").value = "";
+            document.getElementById("reabJuizIdManual").value = "";
+            document.getElementById("selectReabAdv").value = "manual";
+            document.getElementById("reabAdvNomeManual").value = "";
+            document.getElementById("reabAdvIdInGameManual").value = "";
+            document.getElementById("reabAdvIdManual").value = "";
+            
+            toggleManualInput('ReabJuiz');
+            toggleManualInput('ReabAdv');
+
             document.getElementById("reabClienteNome").value = "";
             document.getElementById("reabClienteId").value = "";
             document.getElementById("reabClienteRP").value = "";
@@ -721,7 +1266,10 @@
             document.getElementById("outputContainer").style.display = "none";
         }
 
-        toggleFields();
+        window.onload = function() {
+            carregarBancoDados();
+            toggleFields();
+        };
     </script>
 </body>
 </html>
