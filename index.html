@@ -268,6 +268,37 @@
             margin-bottom: 15px;
         }
 
+        .btn-backup-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            border-top: 1px dashed var(--border-color);
+            padding-top: 15px;
+        }
+
+        .btn-backup {
+            background-color: var(--input-bg);
+            color: var(--accent-color);
+            border: 1px solid var(--accent-color);
+            padding: 8px 12px;
+            font-size: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            font-family: 'Segoe UI', sans-serif;
+            font-weight: bold;
+            text-transform: uppercase;
+            flex: 1;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .btn-backup:hover {
+            background-color: var(--accent-color);
+            color: #0f141c;
+        }
+
         .btn-excluir {
             background-color: var(--accent-color);
             color: #0f141c;
@@ -626,6 +657,13 @@
                 </div>
 
                 <button class="btn-add-membro" onclick="salvarNovoMembro()" style="width: 100%; margin-top: 10px;">Salvar em Nuvem Compartilhada</button>
+
+                <!-- BOTÕES DE IMPORTAR E EXPORTAR BACKUP -->
+                <div class="btn-backup-container">
+                    <button class="btn-backup" onclick="exportarBackup()"><i class="fa-solid fa-file-export"></i> Exportar Backup</button>
+                    <button class="btn-backup" onclick="document.getElementById('fileImportInput').click()"><i class="fa-solid fa-file-import"></i> Importar Backup</button>
+                    <input type="file" id="fileImportInput" accept=".json" onchange="importarBackup(this)" style="display: none;">
+                </div>
             </div>
 
             <div class="form-group">
@@ -649,7 +687,7 @@
             </div>
 
             <div class="output-box-wrapper" id="wrapperTexto2" style="display: none;">
-                <div class="output-box-title">Texto 2 - Registro de Sistema / Logs:</div>
+                <div class="output-box-title">Texto 2 - Registro de System / Logs:</div>
                 <textarea id="outputText2" readonly style="height: 160px;"></textarea>
                 <button class="mini-copy-btn" onclick="copySpecificText('outputText2')">Copiar Registro de Log</button>
             </div>
@@ -712,7 +750,7 @@
 
         async function salvarNaNuvem() {
             atualizarSelectsEListas();
-            if(MASTER_KEY.includes("$2a$10$pGXbhmcAPBgBLcMnyW82gepizg1e1gvbezqp57nF42yetv2fIIcXyS")) {
+            if(MASTER_KEY.includes("$2a$10$pGXbhmcAPBgBLcMnyW82gepizg1e1gvbezqp57nF42yetv2fIIcXy")) {
                 localStorage.setItem('judiciario_rp_equipe', JSON.stringify(dadosEquipe));
                 return;
             }
@@ -729,6 +767,47 @@
             } catch (err) {
                 console.error("Erro ao salvar na nuvem:", err);
             }
+        }
+
+        function exportarBackup() {
+            if (!verificarAutenticacao()) return;
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dadosEquipe, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", "backup_sistema_judiciario_equipe.json");
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+            mostrarToast();
+        }
+
+        function importarBackup(input) {
+            if (!verificarAutenticacao()) return;
+            const file = input.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                try {
+                    const jsonImportado = JSON.parse(e.target.result);
+                    if (jsonImportado.Juiz || jsonImportado.Advogado || jsonImportado.Psicologo || jsonImportado.Tiros) {
+                        dadosEquipe = {
+                            Juiz: jsonImportado.Juiz || [],
+                            Advogado: jsonImportado.Advogado || [],
+                            Psicologo: jsonImportado.Psicologo || [],
+                            Tiros: jsonImportado.Tiros || []
+                        };
+                        await salvarNaNuvem();
+                        alert("Backup importado e sincronizado com sucesso!");
+                        input.value = ""; 
+                    } else {
+                        alert("Formato de arquivo de backup inválido.");
+                    }
+                } catch (err) {
+                    alert("Erro ao ler o arquivo de backup. Certifique-se de que é um arquivo .json válido.");
+                }
+            };
+            reader.readAsText(file);
         }
 
         function verificarEAdicionarAutomatico(tipo, nome, idInGame, idDiscord, funcao = "") {
@@ -1118,7 +1197,7 @@
             if (status === "1") {
                 finalText = `**DESPACHO - ANÁLISE PRELIMINAR**\n\nVistos, etc.\n\nTrata-se de pedido de Emissão de Porte de Arma solicitado por **${nomeAutor}** (Passaporte: ${passaporte}), representado por seu advogado.\n\nVerifico que o requerente atende aos requisitos preliminares para prosseguimento do feito.\n\nPortanto, **DECIDO: DEFIRO** o prosseguimento do pedido e determino o encaminhamento para Avaliação Psicológica.\n\n🧠 **STATUS: AGUARDANDO LAUDO PSICOLÓGICO**\n\n---\n\n**Juiz:** ${idJuiz}\n**Advogado:** ${idAdvogado}\n**Autor/Requerente:** ${nomeAutor} | ${idAutor}\n\nNada mais.`;
             } else if (status === "2") {
-                finalText = `**DESPACHO - ANÁLISE DE LAUDO**\n\nVistos, etc.\n\nTrata-se de pedido de Emissão de Porte de Arma solicitado por **${nomeAutor}** (Passaporte: ${passaporte}).\n\nConsta nos autos laudo psicológico favorável, considerando o requerente **APTO** para prosseguimento do processo.\n\nDiante do exposto, determino o encaminhamento para realização do Teste Prático de Manuseio e Disparo de Arma de Fogo.\n\n🎯 **STATUS: AGUARDANDO TESTE DE TIROS**\n\n---\n\n**Juiz:** ${idJuiz}\n**Advogado:** ${idAdvogado}\n**Psicólogo Responsável:** ${idPsicologo}\n**Autor/Requerente:** ${nomeAutor} | ${idAutor}\n\nNada mais.`;
+                finalText = `**DESPACHO - ANÁLISE DE LAUDO**\n\nVistos, etc.\n\nTrata-se de pedido de Emissão de Porte de Arma solicitado por **${nomeAutor}** (Passaporte: ${passaporte}).\n\nConsta nos autos laudo psicológico favorável, considering o requerente **APTO** para prosseguimento do processo.\n\nDiante do exposto, determino o encaminhamento para realização do Teste Prático de Manuseio e Disparo de Arma de Fogo.\n\n🎯 **STATUS: AGUARDANDO TESTE DE TIROS**\n\n---\n\n**Juiz:** ${idJuiz}\n**Advogado:** ${idAdvogado}\n**Psicólogo Responsável:** ${idPsicologo}\n**Autor/Requerente:** ${nomeAutor} | ${idAutor}\n\nNada mais.`;
             } else if (status === "3") {
                 finalText = `**DESPACHO - ANÁLISE FINAL**\n\nVistos, etc.\n\nTrata-se de pedido de Emissão de Porte de Arma solicitado por **${nomeAutor}** (Passaporte: ${passaporte}).\n\nVerifico que o requerente foi considerado **APTO** na Avaliação Psicológica e **APROVADO** no Teste Prático de Manuseio e Disparo de Arma de Fogo, cumprindo integralmente todas as exigências previstas.\n\nDiante da inexistência de pendências, determino a emissão e posterior entrega do Porte de Arma ao requerente.\n\n📄 **STATUS: AGUARDANDO EMISSÃO E ENTREGA DO PORTE DE ARMA**\n\n---\n\n**Juiz:** ${idJuiz}\n**Advogado:** ${idAdvogado}\n**Psicólogo Responsável:** ${idPsicologo}\n**Responsável Teste de Tiros:** ${idTiros}\n**Autor/Requerente:** ${nomeAutor} | ${idAutor}\n\nNada mais.`;
             } else if (status === "4") {
