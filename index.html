@@ -441,24 +441,24 @@
                     <option value="2">🎯 STATUS: AGUARDANDO TESTE DE TIROS</option>
                     <option value="3">📄 STATUS: AGUARDANDO EMISSÃO E ENTREGA DO PORTE DE ARMA</option>
                     <option value="4">✅ STATUS: PORTE EMITIDO (SENTENÇA FINAL)</option>
-                    <option value="5">👮 STATUS: POLICIAL / MILITAR (ISENTO DE TESTES)</option>
+                    <option value="5">👮 STATUS: AGENTE DE SEGURANÇA / POLICIAL (ISENTO DE TESTES)</option>
                 </select>
             </div>
 
             <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 25px 0;">
 
             <div class="form-group">
-                <label for="nomeAutor">NOME DO AUTOR / CLIENTE</label>
+                <label for="nomeAutor">NOME DO AGENTE / AUTOR</label>
                 <input type="text" id="nomeAutor" placeholder="Ex: Wandinha Addams">
             </div>
 
             <div class="form-group">
-                <label for="passaporteAutor">PASSAPORTE DO AUTOR</label>
+                <label for="passaporteAutor">PASSAPORTE / RE / MATRÍCULA</label>
                 <input type="text" id="passaporteAutor" placeholder="Ex: 137081">
             </div>
 
             <div class="form-group">
-                <label for="idAutor">ID DO DISCORD - AUTOR / CLIENTE</label>
+                <label for="idAutor">ID DO DISCORD - REQUERENTE</label>
                 <input type="text" id="idAutor" placeholder="Ex: 538874591083364383">
             </div>
 
@@ -703,7 +703,6 @@
     <script>
         const SENHA_GERENCIAMENTO = "1385";
         
-        // SUA URL OFICIAL ATIVADA NO MODO TESTE
         const firebaseConfig = {
             databaseURL: "https://sistema-judiciario-rp-default-rtdb.firebaseio.com/"
         };
@@ -732,7 +731,6 @@
             document.getElementById("groupCadFuncao").style.display = (tipo === "Tiros") ? "block" : "none";
         }
 
-        // ESCUTA DA NUVEM EM TEMPO REAL
         database.ref('equipe').on('value', (snapshot) => {
             const dadosNuvemReal = snapshot.val();
             if (dadosNuvemReal) {
@@ -1183,7 +1181,7 @@
 
         function generateDespacho() {
             const status = document.getElementById("statusSelect").value;
-            const nomeAutor = document.getElementById("nomeAutor").value || "**NOME DO AUTOR**";
+            const nomeAutor = document.getElementById("nomeAutor").value || "**NOME DO REQUERENTE**";
             const passaporte = document.getElementById("passaporteAutor").value || "000000";
             const armamento = document.getElementById("txtArmamento").value || "PX4 com 80 munições";
             const idAutor = formatMention(document.getElementById("idAutor").value);
@@ -1236,32 +1234,32 @@
                 document.getElementById("wrapperTexto2").style.display = "block";
                 document.getElementById("titleTexto1").innerText = "Texto 1 - Sentença Final:";
             } else if (status === "5") {
-                // NOVO MODELO: POLICIAL / MILITAR ISENTO DE TESTES
-                finalText = `**⚖️ SENTENÇA DE DEFERIMENTO - PORTE FUNCIONAL / CORPORATIVO**\n\n` +
+                // MODELO ATUALIZADO: AMPLO PARA TODAS AS FORÇAS DE SEGURANÇA
+                finalText = `**⚖️ SENTENÇA DE DEFERIMENTO - PORTE DE ARMA (PRERROGATIVA DE FUNÇÃO / CORPORATIVO)**\n\n` +
                             `**Vistos, etc.**\n\n` +
-                            `Trata-se de procedimento voltado à concessão de Porte de Arma de Fogo de uso pessoal a membro ativo de Força de Segurança Pública.\n\n` +
-                            `Considerando a natureza do cargo exercido pelo requerente **${nomeAutor}** (Passaporte: ${passaporte}), bem como as normativas vigentes que reconhecem a aptidão técnica e psicológica intrínseca à sua função policial/militar, reconheço sua **ISENÇÃO COMPLETA** da realização de exames complementares de tiro e laudos periciais externos.\n\n` +
-                            `Diante do exposto, **DEFIRO** o pedido formulado e homologo a concessão do Porte de Arma Definitivo.\n\n` +
-                            `👮 **STATUS: PORTE EMITIDO (ISENTO DE TESTES)**\n\n` +
+                            `Trata-se de procedimento legal voltado à validação e homologação de Porte de Arma de Fogo de uso pessoal a membro ativo das Forças de Segurança Pública (Polícia Civil, Militar, Federal, entre outras).\n\n` +
+                            `Considerando o cargo exercido pelo requerente **${nomeAutor}** (Passaporte/RE: ${passaporte}), bem como o ordenamento jurídico vigente que reconhece a aptidão técnica, tática e psicológica intrínseca à sua atividade policial/corporativa, declaro sua **ISENÇÃO INTEGRAL** da realização de exames complementares externos de tiro ou laudos periciais civis adicionais.\n\n` +
+                            `Diante do exposto, por prerrogativa de função, **DEFIRO** o pedido formulado e confirmo a regularidade do Porte de Arma Definitivo.\n\n` +
+                            `👮 **STATUS: PORTE EMITIDO (ISENTO DE TESTES POR FUNÇÃO)**\n\n` +
                             `---\n` +
                             `**Juiz:** ${idJuiz}\n` +
-                            `**Advogado:** ${idAdvogado}\n` +
-                            `**Membro da Segurança:** ${nomeAutor} (Passaporte: ${passaporte}) | ${idAutor}`;
+                            `**Advogado/Defensor:** ${idAdvogado}\n` +
+                            `**Agente de Segurança:** ${nomeAutor} (Passaporte: ${passaporte}) | ${idAutor}`;
 
                 const hoje = new Date();
                 const dataFormatada = hoje.toLocaleDateString('pt-BR');
                 
                 let textLog = `NOME: ${nomeAutor} - ${idAutor}\n` +
-                             `PASSAPORTE: ${passaporte}\n` +
+                             `PASSAPORTE/RE: ${passaporte}\n` +
                              `ARMAMENTO: ${armamento}\n` +
-                             `AUTORIZADO POR : ${dadosJuiz.nome} (Passaporte: ${dadosJuiz.idInGame})\n` +
+                             `HOMOLOGADO POR: ${dadosJuiz.nome} (Passaporte: ${dadosJuiz.idInGame})\n` +
                              `FINALIZADO: ${dataFormatada}\n\n` +
                              `VALIDO EM TODO TERRITÓRIO NACIONAL\n` +
-                             `OBS: Isento de testes práticos/psicológicos por prerrogativa de função.`;
+                             `OBS: Isento de testes práticos/psicológicos civis por prerrogativa de função policial/civil/militar/agente público.`;
 
                 document.getElementById("outputText2").value = textLog;
                 document.getElementById("wrapperTexto2").style.display = "block";
-                document.getElementById("titleTexto1").innerText = "Texto 1 - Sentença de Isenção Policial:";
+                document.getElementById("titleTexto1").innerText = "Texto 1 - Sentença de Isenção Corporal:";
             }
 
             document.getElementById("outputText").value = finalText;
