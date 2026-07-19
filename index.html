@@ -441,6 +441,7 @@
                     <option value="2">🎯 STATUS: AGUARDANDO TESTE DE TIROS</option>
                     <option value="3">📄 STATUS: AGUARDANDO EMISSÃO E ENTREGA DO PORTE DE ARMA</option>
                     <option value="4">✅ STATUS: PORTE EMITIDO (SENTENÇA FINAL)</option>
+                    <option value="5">👮 STATUS: POLICIAL / MILITAR (ISENTO DE TESTES)</option>
                 </select>
             </div>
 
@@ -780,7 +781,6 @@
                             Tiros: jsonImportado.Tiros || []
                         };
                         
-                        // ENVIA FORÇADO DIRETO PRO SEU FIREBASE
                         database.ref('equipe').set(dadosEquipe, (error) => {
                             if (error) {
                                 alert("Erro de conexão com o Firebase: " + error.message);
@@ -1050,7 +1050,7 @@
             const status = document.getElementById("statusSelect").value;
             document.getElementById("fieldPsicologoCompleto").style.display = (status === "2" || status === "3") ? "block" : "none";
             document.getElementById("fieldTirosCompleto").style.display = (status === "3") ? "block" : "none";
-            document.getElementById("fieldArmamento").style.display = (status === "4") ? "block" : "none";
+            document.getElementById("fieldArmamento").style.display = (status === "4" || status === "5") ? "block" : "none";
         }
 
         function addPrisaoRow() {
@@ -1235,6 +1235,33 @@
                 document.getElementById("outputText2").value = textLog;
                 document.getElementById("wrapperTexto2").style.display = "block";
                 document.getElementById("titleTexto1").innerText = "Texto 1 - Sentença Final:";
+            } else if (status === "5") {
+                // NOVO MODELO: POLICIAL / MILITAR ISENTO DE TESTES
+                finalText = `**⚖️ SENTENÇA DE DEFERIMENTO - PORTE FUNCIONAL / CORPORATIVO**\n\n` +
+                            `**Vistos, etc.**\n\n` +
+                            `Trata-se de procedimento voltado à concessão de Porte de Arma de Fogo de uso pessoal a membro ativo de Força de Segurança Pública.\n\n` +
+                            `Considerando a natureza do cargo exercido pelo requerente **${nomeAutor}** (Passaporte: ${passaporte}), bem como as normativas vigentes que reconhecem a aptidão técnica e psicológica intrínseca à sua função policial/militar, reconheço sua **ISENÇÃO COMPLETA** da realização de exames complementares de tiro e laudos periciais externos.\n\n` +
+                            `Diante do exposto, **DEFIRO** o pedido formulado e homologo a concessão do Porte de Arma Definitivo.\n\n` +
+                            `👮 **STATUS: PORTE EMITIDO (ISENTO DE TESTES)**\n\n` +
+                            `---\n` +
+                            `**Juiz:** ${idJuiz}\n` +
+                            `**Advogado:** ${idAdvogado}\n` +
+                            `**Membro da Segurança:** ${nomeAutor} (Passaporte: ${passaporte}) | ${idAutor}`;
+
+                const hoje = new Date();
+                const dataFormatada = hoje.toLocaleDateString('pt-BR');
+                
+                let textLog = `NOME: ${nomeAutor} - ${idAutor}\n` +
+                             `PASSAPORTE: ${passaporte}\n` +
+                             `ARMAMENTO: ${armamento}\n` +
+                             `AUTORIZADO POR : ${dadosJuiz.nome} (Passaporte: ${dadosJuiz.idInGame})\n` +
+                             `FINALIZADO: ${dataFormatada}\n\n` +
+                             `VALIDO EM TODO TERRITÓRIO NACIONAL\n` +
+                             `OBS: Isento de testes práticos/psicológicos por prerrogativa de função.`;
+
+                document.getElementById("outputText2").value = textLog;
+                document.getElementById("wrapperTexto2").style.display = "block";
+                document.getElementById("titleTexto1").innerText = "Texto 1 - Sentença de Isenção Policial:";
             }
 
             document.getElementById("outputText").value = finalText;
