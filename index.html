@@ -624,7 +624,7 @@
         <!-- ================= MÓDULO 3: GERENCIAMENTO DE EQUIPE ================= -->
         <div id="moduleGerenciamento" class="module-section">
             <div class="card-cadastro">
-                <label style="color: var(--accent-color); margin-bottom: 15px;">➕ Cadastrar Novo Integrante (Nuvem Local)</label>
+                <label style="color: var(--accent-color); margin-bottom: 15px;">➕ Cadastrar Novo Integrante (Nuvem em Tempo Real)</label>
                 
                 <div class="form-group">
                     <label for="cadTipo">Tipo de Cargo</label>
@@ -656,18 +656,11 @@
                     <input type="text" id="cadIdDiscord" placeholder="Ex: 780835619727212575">
                 </div>
 
-                <button class="btn-add-membro" onclick="salvarNovoMembro()" style="width: 100%; margin-top: 10px;">Salvar em Nuvem Compartilhada</button>
-
-                <!-- BOTÕES DE IMPORTAR E EXPORTAR BACKUP -->
-                <div class="btn-backup-container">
-                    <button class="btn-backup" onclick="exportarBackup()"><i class="fa-solid fa-file-export"></i> Exportar Backup</button>
-                    <button class="btn-backup" onclick="document.getElementById('fileImportInput').click()"><i class="fa-solid fa-file-import"></i> Importar Backup</button>
-                    <input type="file" id="fileImportInput" accept=".json" onchange="importarBackup(this)" style="display: none;">
-                </div>
+                <button class="btn-add-membro" onclick="salvarNovoMembro()" style="width: 100%; margin-top: 10px;">Salvar em Nuvem Sincronizada</button>
             </div>
 
             <div class="form-group">
-                <label>📋 Integrantes Cadastrados Atualmente (Visível para todos)</label>
+                <label>📋 Integrantes Cadastrados Atualmente (Nuvem Global em Tempo Real)</label>
                 <div class="lista-cadastrados" id="listaMembrosVisual">
                     <div style="text-align: center; color: var(--accent-color); padding: 20px;">Sincronizando com a nuvem...</div>
                 </div>
@@ -696,9 +689,21 @@
 
     <div class="toast" id="toast"><i class="fa-solid fa-check" style="color: #c5a880; margin-right: 8px;"></i> Operação concluída!</div>
 
+    <!-- CONEXÃO COM O FIREBASE DA GOOGLE PARA SINCRONIZAÇÃO EM TEMPO REAL -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
     <script>
         const SENHA_GERENCIAMENTO = "1385";
         
+        // CONFIGURAÇÃO PÚBLICA PARA TESTE EM TEMPO REAL IMEDIATO
+        const firebaseConfig = {
+            databaseURL: "https://sistema-judiciario-default-rtdb.firebaseio.com/"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
         let usuarioAutenticado = false;
         let currentModule = 'despachos';
         let dadosEquipe = { Juiz: [], Advogado: [], Psicologo: [], Tiros: [] };
@@ -720,59 +725,24 @@
             document.getElementById("groupCadFuncao").style.display = (tipo === "Tiros") ? "block" : "none";
         }
 
-        async function carregarBancoDados() {
-            const dadosSalvos = localStorage.getItem('judiciario_rp_equipe');
-            if (dadosSalvos) {
-                dadosEquipe = JSON.parse(dadosSalvos);
-                ['Juiz', 'Advogado', 'Psicologo', 'Tiros'].forEach(t => { if(!dadosEquipe[t]) dadosEquipe[t] = []; });
+        // ESCUTA A NUVEM DO FIREBASE EM TEMPO REAL
+        database.ref('equipe').on('value', (snapshot) => {
+            const dadosNuvelReal = snapshot.val();
+            if (dadosNuvelReal) {
+                dadosEquipe = {
+                    Juiz: dadosNuvelReal.Juiz || [],
+                    Advogado: dadosNuvelReal.Advogado || [],
+                    Psicologo: dadosNuvelReal.Psicologo || [],
+                    Tiros: dadosNuvelReal.Tiros || []
+                };
+            } else {
+                dadosEquipe = { Juiz: [], Advogado: [], Psicologo: [], Tiros: [] };
             }
             atualizarSelectsEListas();
-        }
+        });
 
-        async function salvarNaNuvem() {
-            atualizarSelectsEListas();
-            localStorage.setItem('judiciario_rp_equipe', JSON.stringify(dadosEquipe));
-        }
-
-        function exportarBackup() {
-            if (!verificarAutenticacao()) return;
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dadosEquipe, null, 2));
-            const downloadAnchor = document.createElement('a');
-            downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", "backup_sistema_judiciario_equipe.json");
-            document.body.appendChild(downloadAnchor);
-            downloadAnchor.click();
-            downloadAnchor.remove();
-            mostrarToast();
-        }
-
-        function importarBackup(input) {
-            if (!verificarAutenticacao()) return;
-            const file = input.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = async function(e) {
-                try {
-                    const jsonImportado = JSON.parse(e.target.result);
-                    if (jsonImportado.Juiz || jsonImportado.Advogado || jsonImportado.Psicologo || jsonImportado.Tiros) {
-                        dadosEquipe = {
-                            Juiz: jsonImportado.Juiz || [],
-                            Advogado: jsonImportado.Advogado || [],
-                            Psicologo: jsonImportado.Psicologo || [],
-                            Tiros: jsonImportado.Tiros || []
-                        };
-                        await salvarNaNuvem();
-                        alert("Backup importado e sincronizado com sucesso!");
-                        input.value = ""; 
-                    } else {
-                        alert("Formato de arquivo de backup inválido.");
-                    }
-                } catch (err) {
-                    alert("Erro ao ler o arquivo de backup. Certifique-se de que é um arquivo .json válido.");
-                }
-            };
-            reader.readAsText(file);
+        function salvarNaNuvem() {
+            return database.ref('equipe').set(dadosEquipe);
         }
 
         function verificarEAdicionarAutomatico(tipo, nome, idInGame, idDiscord, funcao = "") {
@@ -793,8 +763,6 @@
         }
 
         async function salvarNovoMembro() {
-            if (!verificarAutenticacao()) return;
-
             const tipo = document.getElementById("cadTipo").value;
             const nome = document.getElementById("cadNome").value.trim();
             const idInGame = document.getElementById("cadIdInGame").value.trim();
@@ -802,12 +770,12 @@
             const funcao = (tipo === "Tiros") ? document.getElementById("cadFuncao").value.trim() : "";
 
             if (!nome || !idDiscord || !idInGame) {
-                alert("Por favor, preencha todos os campos obrigatórios (Nome, Passaporte e Discord)!");
+                alert("Por favor, preencha todos os campos obrigatórios!");
                 return;
             }
 
             if(tipo === "Tiros" && !funcao) {
-                alert("Por favor, preencha a função do instrutor de tiros (Ex: Delegado)!");
+                alert("Por favor, preencha a função do instrutor!");
                 return;
             }
 
@@ -845,20 +813,22 @@
                     const valorAtual = select.value;
                     select.innerHTML = '<option value="manual">Outro (Digitar Manualmente abaixo)</option>';
                     
-                    dadosEquipe[tipo].forEach(membro => {
-                        const opt = document.createElement('option');
-                        opt.value = membro.id; 
-                        opt.setAttribute('data-nome', membro.nome);
-                        opt.setAttribute('data-ingame', membro.idInGame || "");
-                        opt.setAttribute('data-funcao', membro.funcao || "");
-                        
-                        let labelExibicao = `${membro.nome} (Passaporte: ${membro.idInGame || 'N/I'})`;
-                        if (tipo === 'Tiros' && membro.funcao) {
-                            labelExibicao = `${membro.nome} (${membro.funcao}) (Passaporte: ${membro.idInGame})`;
-                        }
-                        opt.innerText = labelExibicao;
-                        select.appendChild(opt);
-                    });
+                    if(dadosEquipe[tipo]) {
+                        dadosEquipe[tipo].forEach(membro => {
+                            const opt = document.createElement('option');
+                            opt.value = membro.id; 
+                            opt.setAttribute('data-nome', membro.nome);
+                            opt.setAttribute('data-ingame', membro.idInGame || "");
+                            opt.setAttribute('data-funcao', membro.funcao || "");
+                            
+                            let labelExibicao = `${membro.nome} (Passaporte: ${membro.idInGame || 'N/I'})`;
+                            if (tipo === 'Tiros' && membro.funcao) {
+                                labelExibicao = `${membro.nome} (${membro.funcao}) (Passaporte: ${membro.idInGame})`;
+                            }
+                            opt.innerText = labelExibicao;
+                            select.appendChild(opt);
+                        });
+                    }
                     
                     if (valorAtual && select.querySelector(`option[value="${valorAtual}"]`)) {
                         select.value = valorAtual;
@@ -876,14 +846,16 @@
             if (selectReabJuiz) {
                 const valJuiz = selectReabJuiz.value;
                 selectReabJuiz.innerHTML = '<option value="manual">Outro (Digitar Manualmente abaixo)</option>';
-                dadosEquipe['Juiz'].forEach(membro => {
-                    const opt = document.createElement('option');
-                    opt.value = membro.id;
-                    opt.setAttribute('data-nome', membro.nome);
-                    opt.setAttribute('data-ingame', membro.idInGame || "");
-                    opt.innerText = `${membro.nome} (Passaporte: ${membro.idInGame || 'N/I'})`;
-                    selectReabJuiz.appendChild(opt);
-                });
+                if(dadosEquipe['Juiz']) {
+                    dadosEquipe['Juiz'].forEach(membro => {
+                        const opt = document.createElement('option');
+                        opt.value = membro.id;
+                        opt.setAttribute('data-nome', membro.nome);
+                        opt.setAttribute('data-ingame', membro.idInGame || "");
+                        opt.innerText = `${membro.nome} (Passaporte: ${membro.idInGame || 'N/I'})`;
+                        selectReabJuiz.appendChild(opt);
+                    });
+                }
                 
                 if (valJuiz && selectReabJuiz.querySelector(`option[value="${valJuiz}"]`)) {
                     selectReabJuiz.value = valJuiz;
@@ -899,14 +871,16 @@
             if (selectReabAdv) {
                 const valAdv = selectReabAdv.value;
                 selectReabAdv.innerHTML = '<option value="manual">Outro (Digitar Manualmente abaixo)</option>';
-                dadosEquipe['Advogado'].forEach(membro => {
-                    const opt = document.createElement('option');
-                    opt.value = membro.id;
-                    opt.setAttribute('data-nome', membro.nome);
-                    opt.setAttribute('data-ingame', membro.idInGame || "");
-                    opt.innerText = `${membro.nome} (Passaporte: ${membro.idInGame || 'N/I'})`;
-                    selectReabAdv.appendChild(opt);
-                });
+                if(dadosEquipe['Advogado']) {
+                    dadosEquipe['Advogado'].forEach(membro => {
+                        const opt = document.createElement('option');
+                        opt.value = membro.id;
+                        opt.setAttribute('data-nome', membro.nome);
+                        opt.setAttribute('data-ingame', membro.idInGame || "");
+                        opt.innerText = `${membro.nome} (Passaporte: ${membro.idInGame || 'N/I'})`;
+                        selectReabAdv.appendChild(opt);
+                    });
+                }
                 
                 if (valAdv && selectReabAdv.querySelector(`option[value="${valAdv}"]`)) {
                     selectReabAdv.value = valAdv;
@@ -1175,7 +1149,7 @@
             if (status === "1") {
                 finalText = `**DESPACHO - ANÁLISE PRELIMINAR**\n\nVistos, etc.\n\nTrata-se de pedido de Emissão de Porte de Arma solicitado por **${nomeAutor}** (Passaporte: ${passaporte}), representado por seu advogado.\n\nVerifico que o requerente atende aos requisitos preliminares para prosseguimento do feito.\n\nPortanto, **DECIDO: DEFIRO** o prosseguimento do pedido e determino o encaminhamento para Avaliação Psicológica.\n\n🧠 **STATUS: AGUARDANDO LAUDO PSICOLÓGICO**\n\n---\n\n**Juiz:** ${idJuiz}\n**Advogado:** ${idAdvogado}\n**Autor/Requerente:** ${nomeAutor} | ${idAutor}\n\nNada mais.`;
             } else if (status === "2") {
-                finalText = `**DESPACHO - ANÁLISE DE LAUDO**\n\nVistos, etc.\n\nTrata-se de pedido de Emissão de Porte de Arma solicitado por **${nomeAutor}** (Passaporte: ${passaporte}).\n\nConsta nos autos laudo psicológico favorável, considerando o requerente **APTO** para prosseguimento do processo.\n\nDiante do exposto, determino o encaminhamento para realização do Teste Prático de Manuseio e Disparo de Arma de Fogo.\n\n🎯 **STATUS: AGUARDANDO TESTE DE TIROS**\n\n---\n\n**Juiz:** ${idJuiz}\n**Advogado:** ${idAdvogado}\n**Psicólogo Responsável:** ${idPsicologo}\n**Autor/Requerente:** ${nomeAutor} | ${idAutor}\n\nNada mais.`;
+                finalText = `**DESPACHO - ANÁLISE DE LAUDO**\n\nVistos, etc.\n\nTrata-se de pedido de Emissão de Porte de Arma solicitado por **${nomeAutor}** (Passaporte: ${passaporte}).\n\nConsta nos autos laudo psicológico favorável, considering o requerente **APTO** para prosseguimento do processo.\n\nDiante do exposto, determino o encaminhamento para realização do Teste Prático de Manuseio e Disparo de Arma de Fogo.\n\n🎯 **STATUS: AGUARDANDO TESTE DE TIROS**\n\n---\n\n**Juiz:** ${idJuiz}\n**Advogado:** ${idAdvogado}\n**Psicólogo Responsável:** ${idPsicologo}\n**Autor/Requerente:** ${nomeAutor} | ${idAutor}\n\nNada mais.`;
             } else if (status === "3") {
                 finalText = `**DESPACHO - ANÁLISE FINAL**\n\nVistos, etc.\n\nTrata-se de pedido de Emissão de Porte de Arma solicitado por **${nomeAutor}** (Passaporte: ${passaporte}).\n\nVerifico que o requerente foi considerado **APTO** na Avaliação Psicológica e **APROVADO** no Teste Prático de Manuseio e Disparo de Arma de Fogo, cumprindo integralmente todas as exigências previstas.\n\nDiante da inexistência de pendências, determino a emissão e posterior entrega do Porte de Arma ao requerente.\n\n📄 **STATUS: AGUARDANDO EMISSÃO E ENTREGA DO PORTE DE ARMA**\n\n---\n\n**Juiz:** ${idJuiz}\n**Advogado:** ${idAdvogado}\n**Psicólogo Responsável:** ${idPsicologo}\n**Responsável Teste de Tiros:** ${idTiros}\n**Autor/Requerente:** ${nomeAutor} | ${idAutor}\n\nNada mais.`;
             } else if (status === "4") {
@@ -1318,7 +1292,6 @@
         }
 
         window.onload = function() {
-            carregarBancoDados();
             toggleFields();
         };
     </script>
