@@ -664,6 +664,13 @@
                 <div class="lista-cadastrados" id="listaMembrosVisual">
                     <div style="text-align: center; color: var(--accent-color); padding: 20px;">Sincronizando com a nuvem...</div>
                 </div>
+                
+                <!-- BOTOES DE IMPORTAR E EXPORTAR BACKUP READICIONADOS AQUI -->
+                <div class="btn-backup-container">
+                    <button class="btn-backup" onclick="exportarBackupManual()"><i class="fa-solid fa-download"></i> Exportar Backup (.json)</button>
+                    <button class="btn-backup" onclick="document.getElementById('fileImportInput').click()"><i class="fa-solid fa-upload"></i> Importar Backup (.json)</button>
+                    <input type="file" id="fileImportInput" accept=".json" style="display: none;" onchange="importarBackupManual(event)">
+                </div>
             </div>
         </div>
 
@@ -696,7 +703,6 @@
     <script>
         const SENHA_GERENCIAMENTO = "1385";
         
-        // CONFIGURAÇÃO PÚBLICA PARA TESTE EM TEMPO REAL IMEDIATO
         const firebaseConfig = {
             databaseURL: "https://sistema-judiciario-default-rtdb.firebaseio.com/"
         };
@@ -725,7 +731,6 @@
             document.getElementById("groupCadFuncao").style.display = (tipo === "Tiros") ? "block" : "none";
         }
 
-        // ESCUTA A NUVEM DO FIREBASE EM TEMPO REAL
         database.ref('equipe').on('value', (snapshot) => {
             const dadosNuvelReal = snapshot.val();
             if (dadosNuvelReal) {
@@ -743,6 +748,51 @@
 
         function salvarNaNuvem() {
             return database.ref('equipe').set(dadosEquipe);
+        }
+
+        // FUNÇÃO DE EXPORTAR BACKUP MANUAL
+        function exportarBackupManual() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dadosEquipe, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", "backup_sistema_judiciario_equipe.json");
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+            mostrarToast();
+        }
+
+        // FUNÇÃO DE IMPORTAR BACKUP MANUAL
+        function importarBackupManual(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                try {
+                    const jsonImportado = JSON.parse(e.target.result);
+                    
+                    // Validação simples da estrutura estrutural do arquivo
+                    if (jsonImportado.Juiz || jsonImportado.Advogado || jsonImportado.Psicologo || jsonImportado.Tiros) {
+                        dadosEquipe = {
+                            Juiz: jsonImportado.Juiz || [],
+                            Advogado: jsonImportado.Advogado || [],
+                            Psicologo: jsonImportado.Psicologo || [],
+                            Tiros: jsonImportado.Tiros || []
+                        };
+                        
+                        await salvarNaNuvem();
+                        alert("Backup importado com sucesso e sincronizado na Nuvem!");
+                        mostrarToast();
+                    } else {
+                        alert("Formato de arquivo inválido! Verifique se escolheu o arquivo de backup correto.");
+                    }
+                } catch (err) {
+                    alert("Erro ao ler o arquivo JSON. Certifique-se de que o arquivo não está corrompido.");
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = ""; // Reseta o campo de input
         }
 
         function verificarEAdicionarAutomatico(tipo, nome, idInGame, idDiscord, funcao = "") {
@@ -1149,7 +1199,7 @@
             if (status === "1") {
                 finalText = `**DESPACHO - ANÁLISE PRELIMINAR**\n\nVistos, etc.\n\nTrata-se de pedido de Emissão de Porte de Arma solicitado por **${nomeAutor}** (Passaporte: ${passaporte}), representado por seu advogado.\n\nVerifico que o requerente atende aos requisitos preliminares para prosseguimento do feito.\n\nPortanto, **DECIDO: DEFIRO** o prosseguimento do pedido e determino o encaminhamento para Avaliação Psicológica.\n\n🧠 **STATUS: AGUARDANDO LAUDO PSICOLÓGICO**\n\n---\n\n**Juiz:** ${idJuiz}\n**Advogado:** ${idAdvogado}\n**Autor/Requerente:** ${nomeAutor} | ${idAutor}\n\nNada mais.`;
             } else if (status === "2") {
-                finalText = `**DESPACHO - ANÁLISE DE LAUDO**\n\nVistos, etc.\n\nTrata-se de pedido de Emissão de Porte de Arma solicitado por **${nomeAutor}** (Passaporte: ${passaporte}).\n\nConsta nos autos laudo psicológico favorável, considering o requerente **APTO** para prosseguimento do processo.\n\nDiante do exposto, determino o encaminhamento para realização do Teste Prático de Manuseio e Disparo de Arma de Fogo.\n\n🎯 **STATUS: AGUARDANDO TESTE DE TIROS**\n\n---\n\n**Juiz:** ${idJuiz}\n**Advogado:** ${idAdvogado}\n**Psicólogo Responsável:** ${idPsicologo}\n**Autor/Requerente:** ${nomeAutor} | ${idAutor}\n\nNada mais.`;
+                finalText = `**DESPACHO - ANÁLISE DE LAUDO**\n\nVistos, etc.\n\nTrata-se de pedido de Emissão de Porte de Arma solicitado por **${nomeAutor}** (Passaporte: ${passaporte}).\n\nConsta nos autos laudo psicológico favorável, considerando o requerente **APTO** para prosseguimento do processo.\n\nDiante do exposto, determino o encaminhamento para realização do Teste Prático de Manuseio e Disparo de Arma de Fogo.\n\n🎯 **STATUS: AGUARDANDO TESTE DE TIROS**\n\n---\n\n**Juiz:** ${idJuiz}\n**Advogado:** ${idAdvogado}\n**Psicólogo Responsável:** ${idPsicologo}\n**Autor/Requerente:** ${nomeAutor} | ${idAutor}\n\nNada mais.`;
             } else if (status === "3") {
                 finalText = `**DESPACHO - ANÁLISE FINAL**\n\nVistos, etc.\n\nTrata-se de pedido de Emissão de Porte de Arma solicitado por **${nomeAutor}** (Passaporte: ${passaporte}).\n\nVerifico que o requerente foi considerado **APTO** na Avaliação Psicológica e **APROVADO** no Teste Prático de Manuseio e Disparo de Arma de Fogo, cumprindo integralmente todas as exigências previstas.\n\nDiante da inexistência de pendências, determino a emissão e posterior entrega do Porte de Arma ao requerente.\n\n📄 **STATUS: AGUARDANDO EMISSÃO E ENTREGA DO PORTE DE ARMA**\n\n---\n\n**Juiz:** ${idJuiz}\n**Advogado:** ${idAdvogado}\n**Psicólogo Responsável:** ${idPsicologo}\n**Responsável Teste de Tiros:** ${idTiros}\n**Autor/Requerente:** ${nomeAutor} | ${idAutor}\n\nNada mais.`;
             } else if (status === "4") {
