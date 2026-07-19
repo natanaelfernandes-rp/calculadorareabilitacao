@@ -844,9 +844,10 @@
                 if (select) {
                     const valorAtual = select.value;
                     select.innerHTML = '<option value="manual">Outro (Digitar Manualmente abaixo)</option>';
+                    
                     dadosEquipe[tipo].forEach(membro => {
                         const opt = document.createElement('option');
-                        opt.value = miembro.id; 
+                        opt.value = membro.id; 
                         opt.setAttribute('data-nome', membro.nome);
                         opt.setAttribute('data-ingame', membro.idInGame || "");
                         opt.setAttribute('data-funcao', membro.funcao || "");
@@ -858,13 +859,19 @@
                         opt.innerText = labelExibicao;
                         select.appendChild(opt);
                     });
-                    select.value = valorAtual;
-                    if(!select.value) select.value = "manual";
+                    
+                    if (valorAtual && select.querySelector(`option[value="${valorAtual}"]`)) {
+                        select.value = valorAtual;
+                    } else if (select.options.length > 1) {
+                        select.value = select.options[1].value;
+                    } else {
+                        select.value = "manual";
+                    }
+                    
                     toggleManualInput(tipo);
                 }
             });
 
-            // Sincronizar calculadora com os mesmos dados da nuvem
             const selectReabJuiz = document.getElementById("selectReabJuiz");
             if (selectReabJuiz) {
                 const valJuiz = selectReabJuiz.value;
@@ -877,8 +884,14 @@
                     opt.innerText = `${membro.nome} (Passaporte: ${membro.idInGame || 'N/I'})`;
                     selectReabJuiz.appendChild(opt);
                 });
-                selectReabJuiz.value = valJuiz;
-                if(!selectReabJuiz.value) selectReabJuiz.value = "manual";
+                
+                if (valJuiz && selectReabJuiz.querySelector(`option[value="${valJuiz}"]`)) {
+                    selectReabJuiz.value = valJuiz;
+                } else if (selectReabJuiz.options.length > 1) {
+                    selectReabJuiz.value = selectReabJuiz.options[1].value;
+                } else {
+                    selectReabJuiz.value = "manual";
+                }
                 toggleManualInput('ReabJuiz');
             }
 
@@ -894,12 +907,17 @@
                     opt.innerText = `${membro.nome} (Passaporte: ${membro.idInGame || 'N/I'})`;
                     selectReabAdv.appendChild(opt);
                 });
-                selectReabAdv.value = valAdv;
-                if(!selectReabAdv.value) selectReabAdv.value = "manual";
+                
+                if (valAdv && selectReabAdv.querySelector(`option[value="${valAdv}"]`)) {
+                    selectReabAdv.value = valAdv;
+                } else if (selectReabAdv.options.length > 1) {
+                    selectReabAdv.value = selectReabAdv.options[1].value;
+                } else {
+                    selectReabAdv.value = "manual";
+                }
                 toggleManualInput('ReabAdv');
             }
 
-            // Organização visual da lista por categorias separadas
             const listaVisual = document.getElementById("listaMembrosVisual");
             if(listaVisual) {
                 listaVisual.innerHTML = "";
@@ -915,7 +933,6 @@
                 tipos.forEach(tipo => {
                     const membrosFiltrados = dadosEquipe[tipo] || [];
                     if(membrosFiltrados.length > 0) {
-                        // Cria o título da categoria separadora
                         const tituloCategoria = document.createElement('div');
                         tituloCategoria.className = "categoria-titulo";
                         tituloCategoria.innerText = mapeamentoCategorias[tipo];
@@ -1103,9 +1120,6 @@
         function getMembroDataEx(tipo, prefixoElemento) {
             const select = document.getElementById(`select${prefixoElemento}`);
             if (!select || select.value === "manual") {
-                const subf = prefixoElemento.startsWith("Reab") ? "Reab" + tipo : tipo;
-                let manualBoxSufix = prefixoElemento.startsWith("Reab") ? "Reab" + tipo : tipo;
-                
                 let nomeId = tipo === "Juiz" ? "nomeJuizManual" : "nomeAdvogadoManual";
                 let passaporteId = tipo === "Juiz" ? "idInGameJuizManual" : "idInGameAdvogadoManual";
                 let discordId = tipo === "Juiz" ? "idJuizManual" : "idAdvogadoManual";
@@ -1268,10 +1282,7 @@
             document.getElementById("idInGameTirosManual").value = "";
             document.getElementById("idTirosManual").value = "";
             
-            toggleManualInput('Advogado');
-            toggleManualInput('Juiz');
-            toggleManualInput('Psicologo');
-            toggleManualInput('Tiros');
+            atualizarSelectsEListas();
 
             document.getElementById("txtArmamento").value = "PX4 com 80 munições";
             
@@ -1284,9 +1295,6 @@
             document.getElementById("reabAdvIdInGameManual").value = "";
             document.getElementById("reabAdvIdManual").value = "";
             
-            toggleManualInput('ReabJuiz');
-            toggleManualInput('ReabAdv');
-
             document.getElementById("reabClienteNome").value = "";
             document.getElementById("reabClienteId").value = "";
             document.getElementById("reabClienteRP").value = "";
