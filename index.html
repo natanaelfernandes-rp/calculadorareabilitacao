@@ -624,7 +624,7 @@
         <!-- ================= MÓDULO 3: GERENCIAMENTO DE EQUIPE ================= -->
         <div id="moduleGerenciamento" class="module-section">
             <div class="card-cadastro">
-                <label style="color: var(--accent-color); margin-bottom: 15px;">➕ Cadastrar Novo Integrante (Nuvem Global)</label>
+                <label style="color: var(--accent-color); margin-bottom: 15px;">➕ Cadastrar Novo Integrante (Nuvem Local)</label>
                 
                 <div class="form-group">
                     <label for="cadTipo">Tipo de Cargo</label>
@@ -697,8 +697,6 @@
     <div class="toast" id="toast"><i class="fa-solid fa-check" style="color: #c5a880; margin-right: 8px;"></i> Operação concluída!</div>
 
     <script>
-        const BIN_ID = "6a5a6e9df5f4af5e299d9f6a";
-        const MASTER_KEY = "$2a$10$pGXbhmcAPBgBLcMnyW82gepizg1e1gvbezqp57nF42yetv2fIIcXy";
         const SENHA_GERENCIAMENTO = "1385";
         
         let usuarioAutenticado = false;
@@ -723,50 +721,17 @@
         }
 
         async function carregarBancoDados() {
-            if(MASTER_KEY.includes("$2a$10$pGXbhmcAPBgBLcMnyW82gepizg1e1gvbezqp57nF42yetv2fIIcXy")) {
-                const dadosSalvos = localStorage.getItem('judiciario_rp_equipe');
-                if (dadosSalvos) {
-                    dadosEquipe = JSON.parse(dadosSalvos);
-                    ['Juiz', 'Advogado', 'Psicologo', 'Tiros'].forEach(t => { if(!dadosEquipe[t]) dadosEquipe[t] = []; });
-                }
-                atualizarSelectsEListas();
-                return;
-            }
-
-            try {
-                const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
-                    headers: { "X-Master-Key": MASTER_KEY }
-                });
-                const data = await res.json();
-                if (data.record) {
-                    dadosEquipe = data.record;
-                    ['Juiz', 'Advogado', 'Psicologo', 'Tiros'].forEach(t => { if(!dadosEquipe[t]) dadosEquipe[t] = []; });
-                }
-            } catch (err) {
-                console.error("Erro ao carregar dados da nuvem:", err);
+            const dadosSalvos = localStorage.getItem('judiciario_rp_equipe');
+            if (dadosSalvos) {
+                dadosEquipe = JSON.parse(dadosSalvos);
+                ['Juiz', 'Advogado', 'Psicologo', 'Tiros'].forEach(t => { if(!dadosEquipe[t]) dadosEquipe[t] = []; });
             }
             atualizarSelectsEListas();
         }
 
         async function salvarNaNuvem() {
             atualizarSelectsEListas();
-            if(MASTER_KEY.includes("$2a$10$pGXbhmcAPBgBLcMnyW82gepizg1e1gvbezqp57nF42yetv2fIIcXy")) {
-                localStorage.setItem('judiciario_rp_equipe', JSON.stringify(dadosEquipe));
-                return;
-            }
-
-            try {
-                await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
-                    method: "PUT",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-Master-Key": MASTER_KEY
-                    },
-                    body: JSON.stringify(dadosEquipe)
-                });
-            } catch (err) {
-                console.error("Erro ao salvar na nuvem:", err);
-            }
+            localStorage.setItem('judiciario_rp_equipe', JSON.stringify(dadosEquipe));
         }
 
         function exportarBackup() {
@@ -881,7 +846,7 @@
                     select.innerHTML = '<option value="manual">Outro (Digitar Manualmente abaixo)</option>';
                     dadosEquipe[tipo].forEach(membro => {
                         const opt = document.createElement('option');
-                        opt.value = membro.id; 
+                        opt.value = miembro.id; 
                         opt.setAttribute('data-nome', membro.nome);
                         opt.setAttribute('data-ingame', membro.idInGame || "");
                         opt.setAttribute('data-funcao', membro.funcao || "");
@@ -1141,7 +1106,6 @@
                 const subf = prefixoElemento.startsWith("Reab") ? "Reab" + tipo : tipo;
                 let manualBoxSufix = prefixoElemento.startsWith("Reab") ? "Reab" + tipo : tipo;
                 
-                // Mapeamento específico dos IDs manuais da calculadora
                 let nomeId = tipo === "Juiz" ? "nomeJuizManual" : "nomeAdvogadoManual";
                 let passaporteId = tipo === "Juiz" ? "idInGameJuizManual" : "idInGameAdvogadoManual";
                 let discordId = tipo === "Juiz" ? "idJuizManual" : "idAdvogadoManual";
@@ -1197,7 +1161,7 @@
             if (status === "1") {
                 finalText = `**DESPACHO - ANÁLISE PRELIMINAR**\n\nVistos, etc.\n\nTrata-se de pedido de Emissão de Porte de Arma solicitado por **${nomeAutor}** (Passaporte: ${passaporte}), representado por seu advogado.\n\nVerifico que o requerente atende aos requisitos preliminares para prosseguimento do feito.\n\nPortanto, **DECIDO: DEFIRO** o prosseguimento do pedido e determino o encaminhamento para Avaliação Psicológica.\n\n🧠 **STATUS: AGUARDANDO LAUDO PSICOLÓGICO**\n\n---\n\n**Juiz:** ${idJuiz}\n**Advogado:** ${idAdvogado}\n**Autor/Requerente:** ${nomeAutor} | ${idAutor}\n\nNada mais.`;
             } else if (status === "2") {
-                finalText = `**DESPACHO - ANÁLISE DE LAUDO**\n\nVistos, etc.\n\nTrata-se de pedido de Emissão de Porte de Arma solicitado por **${nomeAutor}** (Passaporte: ${passaporte}).\n\nConsta nos autos laudo psicológico favorável, considering o requerente **APTO** para prosseguimento do processo.\n\nDiante do exposto, determino o encaminhamento para realização do Teste Prático de Manuseio e Disparo de Arma de Fogo.\n\n🎯 **STATUS: AGUARDANDO TESTE DE TIROS**\n\n---\n\n**Juiz:** ${idJuiz}\n**Advogado:** ${idAdvogado}\n**Psicólogo Responsável:** ${idPsicologo}\n**Autor/Requerente:** ${nomeAutor} | ${idAutor}\n\nNada mais.`;
+                finalText = `**DESPACHO - ANÁLISE DE LAUDO**\n\nVistos, etc.\n\nTrata-se de pedido de Emissão de Porte de Arma solicitado por **${nomeAutor}** (Passaporte: ${passaporte}).\n\nConsta nos autos laudo psicológico favorável, considerando o requerente **APTO** para prosseguimento do processo.\n\nDiante do exposto, determino o encaminhamento para realização do Teste Prático de Manuseio e Disparo de Arma de Fogo.\n\n🎯 **STATUS: AGUARDANDO TESTE DE TIROS**\n\n---\n\n**Juiz:** ${idJuiz}\n**Advogado:** ${idAdvogado}\n**Psicólogo Responsável:** ${idPsicologo}\n**Autor/Requerente:** ${nomeAutor} | ${idAutor}\n\nNada mais.`;
             } else if (status === "3") {
                 finalText = `**DESPACHO - ANÁLISE FINAL**\n\nVistos, etc.\n\nTrata-se de pedido de Emissão de Porte de Arma solicitado por **${nomeAutor}** (Passaporte: ${passaporte}).\n\nVerifico que o requerente foi considerado **APTO** na Avaliação Psicológica e **APROVADO** no Teste Prático de Manuseio e Disparo de Arma de Fogo, cumprindo integralmente todas as exigências previstas.\n\nDiante da inexistência de pendências, determino a emissão e posterior entrega do Porte de Arma ao requerente.\n\n📄 **STATUS: AGUARDANDO EMISSÃO E ENTREGA DO PORTE DE ARMA**\n\n---\n\n**Juiz:** ${idJuiz}\n**Advogado:** ${idAdvogado}\n**Psicólogo Responsável:** ${idPsicologo}\n**Responsável Teste de Tiros:** ${idTiros}\n**Autor/Requerente:** ${nomeAutor} | ${idAutor}\n\nNada mais.`;
             } else if (status === "4") {
