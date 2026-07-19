@@ -702,9 +702,9 @@
     <script>
         const SENHA_GERENCIAMENTO = "1385";
         
-        // ATT: IMPORTANTE! SUBSTITUA A URL ABAIXO PELA URL DO SEU PRÓPRIO BANCO DE DADOS DO FIREBASE
+        // SUA URL OFICIAL ATIVADA NO MODO TESTE
         const firebaseConfig = {
-            databaseURL: "https://sistema-judiciario-default-rtdb.firebaseio.com/"
+            databaseURL: "https://sistema-judiciario-rp-default-rtdb.firebaseio.com/"
         };
         
         firebase.initializeApp(firebaseConfig);
@@ -731,7 +731,7 @@
             document.getElementById("groupCadFuncao").style.display = (tipo === "Tiros") ? "block" : "none";
         }
 
-        // ESCUTA DA NUVEM EM TEMPO REAL (Muda em um navegador, atualiza em todos simultaneamente)
+        // ESCUTA DA NUVEM EM TEMPO REAL
         database.ref('equipe').on('value', (snapshot) => {
             const dadosNuvemReal = snapshot.val();
             if (dadosNuvemReal) {
@@ -762,7 +762,6 @@
             mostrarToast();
         }
 
-        // AJUSTADO: AGORA ENVIA DIRETAMENTE PARA O FIREBASE NO MOMENTO DO IMPORT
         function importarBackupManual(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -774,7 +773,6 @@
                     
                     if (jsonImportado.Juiz || jsonImportado.Advogado || jsonImportado.Psicologo || jsonImportado.Tiros) {
                         
-                        // Atualiza a memória local do script
                         dadosEquipe = {
                             Juiz: jsonImportado.Juiz || [],
                             Advogado: jsonImportado.Advogado || [],
@@ -782,12 +780,12 @@
                             Tiros: jsonImportado.Tiros || []
                         };
                         
-                        // ENVIA DIRETAMENTE E FORÇADO PARA A NUVEM DO FIREBASE
+                        // ENVIA FORÇADO DIRETO PRO SEU FIREBASE
                         database.ref('equipe').set(dadosEquipe, (error) => {
                             if (error) {
-                                alert("Erro de permissão ao salvar na nuvem: " + error.message);
+                                alert("Erro de conexão com o Firebase: " + error.message);
                             } else {
-                                alert("Backup sincronizado com sucesso na Nuvem Mundial! Todos os navegadores foram atualizados.");
+                                alert("Backup sincronizado com sucesso na sua Nuvem! Todos os navegadores foram atualizados em tempo real.");
                                 mostrarToast();
                             }
                         });
@@ -1207,7 +1205,7 @@
             if (status === "1") {
                 finalText = `**DESPACHO - ANÁLISE PRELIMINAR**\n\nVistos, etc.\n\nTrata-se de pedido de Emissão de Porte de Arma solicitado por **${nomeAutor}** (Passaporte: ${passaporte}), representado por seu advogado.\n\nVerifico que o requerente atende aos requisitos preliminares para prosseguimento do feito.\n\nPortanto, **DECIDO: DEFIRO** o prosseguimento do pedido e determino o encaminhamento para Avaliação Psicológica.\n\n🧠 **STATUS: AGUARDANDO LAUDO PSICOLÓGICO**\n\n---\n\n**Juiz:** ${idJuiz}\n**Advogado:** ${idAdvogado}\n**Autor/Requerente:** ${nomeAutor} | ${idAutor}\n\nNada mais.`;
             } else if (status === "2") {
-                finalText = `**DESPACHO - ANÁLISE DE LAUDO**\n\nVistos, etc.\n\nTrata-se de pedido de Emissão de Porte de Arma solicitado por **${nomeAutor}** (Passaporte: ${passaporte}).\n\nConsta nos autos laudo psicológico favorável, considering o requerente **APTO** para prosseguimento do processo.\n\nDiante do exposto, determino o encaminhamento para realização do Teste Prático de Manuseio e Disparo de Arma de Fogo.\n\n🎯 **STATUS: AGUARDANDO TESTE DE TIROS**\n\n---\n\n**Juiz:** ${idJuiz}\n**Advogado:** ${idAdvogado}\n**Psicólogo Responsável:** ${idPsicologo}\n**Autor/Requerente:** ${nomeAutor} | ${idAutor}\n\nNada mais.`;
+                finalText = `**DESPACHO - ANÁLISE DE LAUDO**\n\nVistos, etc.\n\nTrata-se de pedido de Emissão de Porte de Arma solicitado por **${nomeAutor}** (Passaporte: ${passaporte}).\n\nConsta nos autos laudo psicológico favorável, considerando o requerente **APTO** para prosseguimento do processo.\n\nDiante do exposto, determino o encaminhamento para realização do Teste Prático de Manuseio e Disparo de Arma de Fogo.\n\n🎯 **STATUS: AGUARDANDO TESTE DE TIROS**\n\n---\n\n**Juiz:** ${idJuiz}\n**Advogado:** ${idAdvogado}\n**Psicólogo Responsável:** ${idPsicologo}\n**Autor/Requerente:** ${nomeAutor} | ${idAutor}\n\nNada mais.`;
             } else if (status === "3") {
                 finalText = `**DESPACHO - ANÁLISE FINAL**\n\nVistos, etc.\n\nTrata-se de pedido de Emissão de Porte de Arma solicitado por **${nomeAutor}** (Passaporte: ${passaporte}).\n\nVerifico que o requerente foi considerado **APTO** na Avaliação Psicológica e **APROVADO** no Teste Prático de Manuseio e Disparo de Arma de Fogo, cumprindo integralmente todas as exigências previstas.\n\nDiante da inexistência de pendências, determino a emissão e posterior entrega do Porte de Arma ao requerente.\n\n📄 **STATUS: AGUARDANDO EMISSÃO E ENTREGA DO PORTE DE ARMA**\n\n---\n\n**Juiz:** ${idJuiz}\n**Advogado:** ${idAdvogado}\n**Psicólogo Responsável:** ${idPsicologo}\n**Responsável Teste de Tiros:** ${idTiros}\n**Autor/Requerente:** ${nomeAutor} | ${idAutor}\n\nNada mais.`;
             } else if (status === "4") {
